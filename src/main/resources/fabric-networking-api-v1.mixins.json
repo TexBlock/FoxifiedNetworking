@@ -1,0 +1,24 @@
+{
+  "required": true,
+  "package": "net.fabricmc.fabric.mixin.networking",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "ClientConnectionMixin",
+    "EntityTrackerEntryMixin",
+    "LoginQueryRequestS2CPacketMixin",
+    "LoginQueryResponseC2SPacketMixin",
+    "ServerConfigurationNetworkHandlerMixin",
+    "ServerLoginNetworkHandlerMixin",
+    "ServerPlayNetworkHandlerMixin",
+    "NetworkRegistryMixin",
+    "ServerCommonNetworkHandlerMixin",
+    "accessor.EntityTrackerAccessor",
+    "accessor.ServerCommonNetworkHandlerAccessor",
+    "accessor.ServerLoginNetworkHandlerAccessor",
+    "accessor.ServerChunkLoadingManagerAccessor",
+    "accessor.NetworkRegistryAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

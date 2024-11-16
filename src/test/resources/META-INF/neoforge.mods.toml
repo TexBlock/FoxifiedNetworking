@@ -1,0 +1,31 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+#issueTrackerURL = ""
+license = "Insert License Here"
+
+[[mods]]
+modId = "foxified_networking_testmod"
+version = "0.1.0"
+displayName = "Foxified Networking API"
+authors = "Me!"
+description = '''
+Low-level, vanilla protocol oriented networking hooks.
+'''
+logoFile = "assets/fabric-networking-api-v1/icon.png"
+
+[[dependencies.foxified_networking_testmod]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.2,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.foxified_networking_testmod]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[mixins]]
+config = "fabric-api-base-testmod.client.mixins.json"
