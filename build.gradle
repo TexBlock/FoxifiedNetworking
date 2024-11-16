@@ -68,6 +68,10 @@ tasks.withType(JavaCompile).configureEach {
     it.options.release = 21
 }
 
+remapJar {
+    atAccessWideners.add("fabric-networking-api-v1.accesswidener")
+}
+
 // Configure Maven publishing.
 publishing {
     publications {
