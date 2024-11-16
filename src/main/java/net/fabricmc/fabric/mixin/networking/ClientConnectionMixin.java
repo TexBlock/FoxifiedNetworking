@@ -25,26 +25,26 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.fabricmc.fabric.impl.networking.NetworkHandlerExtensions;
 import net.fabricmc.fabric.impl.networking.PacketCallbackListener;
-import net.minecraft.network.Connection;
-import net.minecraft.network.PacketListener;
-import net.minecraft.network.PacketSendListener;
-import net.minecraft.network.ProtocolInfo;
-import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.ClientConnection;
+import net.minecraft.network.NetworkState;
+import net.minecraft.network.PacketCallbacks;
+import net.minecraft.network.listener.PacketListener;
+import net.minecraft.network.packet.Packet;
 
-@Mixin(Connection.class)
+@Mixin(ClientConnection.class)
 abstract class ClientConnectionMixin {
 	@Shadow
 	private PacketListener packetListener;
 
-	@Inject(method = "sendPacket", at = @At(value = "FIELD", target = "Lnet/minecraft/network/Connection;sentPackets:I"))
-	private void checkPacket(Packet<?> packet, PacketSendListener callback, boolean flush, CallbackInfo ci) {
+	@Inject(method = "sendImmediately", at = @At(value = "FIELD", target = "Lnet/minecraft/network/ClientConnection;packetsSentCounter:I"))
+	private void checkPacket(Packet<?> packet, PacketCallbacks callback, boolean flush, CallbackInfo ci) {
 		if (this.packetListener instanceof PacketCallbackListener) {
 			((PacketCallbackListener) this.packetListener).sent(packet);
 		}
 	}
 
-	@Inject(method = "validateListener", at = @At("HEAD"))
-	private void unwatchAddon(ProtocolInfo<?> state, PacketListener listener, CallbackInfo ci) {
+	@Inject(method = "setPacketListener", at = @At("HEAD"))
+	private void unwatchAddon(NetworkState<?> state, PacketListener listener, CallbackInfo ci) {
 		if (this.packetListener instanceof NetworkHandlerExtensions oldListener) {
 			oldListener.getAddon().endSession();
 		}
@@ -60,7 +60,7 @@ abstract class ClientConnectionMixin {
 		}
 	}
 
-	@Inject(method = "handleDisconnection", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketListener;onDisconnect(Lnet/minecraft/network/DisconnectionDetails;)V"))
+	@Inject(method = "handleDisconnection", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/listener/PacketListener;onDisconnected(Lnet/minecraft/network/DisconnectionInfo;)V"))
 	private void disconnectAddon(CallbackInfo ci) {
 		if (packetListener instanceof NetworkHandlerExtensions extension) {
 			extension.getAddon().handleDisconnect();

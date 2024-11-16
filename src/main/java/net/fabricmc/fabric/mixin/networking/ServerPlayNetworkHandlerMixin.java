@@ -17,11 +17,11 @@
 package net.fabricmc.fabric.mixin.networking;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.minecraft.network.Connection;
+import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.CommonListenerCookie;
-import net.minecraft.server.network.ServerCommonPacketListenerImpl;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.server.network.ConnectedClientData;
+import net.minecraft.server.network.ServerCommonNetworkHandler;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
 import org.sinytra.fabric.networking_api.NeoListenableNetworkHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,19 +29,19 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 // We want to apply a bit earlier than other mods which may not use us in order to prevent refCount issues
-@Mixin(value = ServerGamePacketListenerImpl.class, priority = 999)
-abstract class ServerPlayNetworkHandlerMixin extends ServerCommonPacketListenerImpl implements NeoListenableNetworkHandler {
-	ServerPlayNetworkHandlerMixin(MinecraftServer server, Connection connection, CommonListenerCookie arg) {
+@Mixin(value = ServerPlayNetworkHandler.class, priority = 999)
+abstract class ServerPlayNetworkHandlerMixin extends ServerCommonNetworkHandler implements NeoListenableNetworkHandler {
+	ServerPlayNetworkHandlerMixin(MinecraftServer server, ClientConnection connection, ConnectedClientData arg) {
 		super(server, connection, arg);
 	}
 
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void initAddon(CallbackInfo ci) {
-		ServerPlayConnectionEvents.INIT.invoker().onPlayInit((ServerGamePacketListenerImpl) (Object) this, server);
+		ServerPlayConnectionEvents.INIT.invoker().onPlayInit((ServerPlayNetworkHandler) (Object) this, server);
 	}
 
 	@Override
 	public void handleDisconnect() {
-		ServerPlayConnectionEvents.DISCONNECT.invoker().onPlayDisconnect((ServerGamePacketListenerImpl) (Object) this, server);
+		ServerPlayConnectionEvents.DISCONNECT.invoker().onPlayDisconnect((ServerPlayNetworkHandler) (Object) this, server);
 	}
 }

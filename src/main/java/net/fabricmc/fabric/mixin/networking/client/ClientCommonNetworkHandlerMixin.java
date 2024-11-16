@@ -18,9 +18,9 @@ package net.fabricmc.fabric.mixin.networking.client;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
-import net.minecraft.network.Connection;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.network.ClientCommonNetworkHandler;
+import net.minecraft.network.ClientConnection;
+import net.minecraft.util.Identifier;
 import net.neoforged.neoforge.common.extensions.ICommonPacketListener;
 import org.sinytra.fabric.networking_api.client.NeoClientCommonNetworking;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,16 +28,16 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.Set;
 
-@Mixin(ClientCommonPacketListenerImpl.class)
+@Mixin(ClientCommonNetworkHandler.class)
 public abstract class ClientCommonNetworkHandlerMixin {
-    @WrapOperation(method = "handleCustomPayload(Lnet/minecraft/network/protocol/common/ClientboundCustomPayloadPacket;)V", at = @At(value = "INVOKE", target = "Lnet/neoforged/neoforge/network/registration/NetworkRegistry;onMinecraftRegister(Lnet/minecraft/network/Connection;Ljava/util/Set;)V"))
-    public void onCustomPayloadRegisterPacket(Connection connection, Set<ResourceLocation> channels, Operation<Void> original) {
+    @WrapOperation(method = "onCustomPayload(Lnet/minecraft/network/packet/s2c/common/CustomPayloadS2CPacket;)V", at = @At(value = "INVOKE", target = "Lnet/neoforged/neoforge/network/registration/NetworkRegistry;onMinecraftRegister(Lnet/minecraft/network/ClientConnection;Ljava/util/Set;)V"))
+    public void onCustomPayloadRegisterPacket(ClientConnection connection, Set<Identifier> channels, Operation<Void> original) {
         original.call(connection, channels);
         NeoClientCommonNetworking.onRegisterPacket((ICommonPacketListener) this, channels);
     }
 
-    @WrapOperation(method = "handleCustomPayload(Lnet/minecraft/network/protocol/common/ClientboundCustomPayloadPacket;)V", at = @At(value = "INVOKE", target = "Lnet/neoforged/neoforge/network/registration/NetworkRegistry;onMinecraftUnregister(Lnet/minecraft/network/Connection;Ljava/util/Set;)V"))
-    public void onCustomPayloadUnregisterPacket(Connection connection, Set<ResourceLocation> channels, Operation<Void> original) {
+    @WrapOperation(method = "onCustomPayload(Lnet/minecraft/network/packet/s2c/common/CustomPayloadS2CPacket;)V", at = @At(value = "INVOKE", target = "Lnet/neoforged/neoforge/network/registration/NetworkRegistry;onMinecraftUnregister(Lnet/minecraft/network/ClientConnection;Ljava/util/Set;)V"))
+    public void onCustomPayloadUnregisterPacket(ClientConnection connection, Set<Identifier> channels, Operation<Void> original) {
         original.call(connection, channels);
         NeoClientCommonNetworking.onUnregisterPacket((ICommonPacketListener) this, channels);
     }

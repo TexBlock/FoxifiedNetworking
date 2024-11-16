@@ -17,23 +17,23 @@
 package net.fabricmc.fabric.impl.networking.payload;
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.PacketByteBuf;
 
 public class PayloadHelper {
-	public static void write(FriendlyByteBuf byteBuf, FriendlyByteBuf data) {
+	public static void write(PacketByteBuf byteBuf, PacketByteBuf data) {
 		byteBuf.writeBytes(data.copy());
 	}
 
-	public static FriendlyByteBuf read(FriendlyByteBuf byteBuf, int maxSize) {
+	public static PacketByteBuf read(PacketByteBuf byteBuf, int maxSize) {
 		assertSize(byteBuf, maxSize);
 
-		FriendlyByteBuf newBuf = PacketByteBufs.create();
+		PacketByteBuf newBuf = PacketByteBufs.create();
 		newBuf.writeBytes(byteBuf.copy());
 		byteBuf.skipBytes(byteBuf.readableBytes());
 		return newBuf;
 	}
 
-	private static void assertSize(FriendlyByteBuf buf, int maxSize) {
+	private static void assertSize(PacketByteBuf buf, int maxSize) {
 		int size = buf.readableBytes();
 
 		if (size < 0 || size > maxSize) {

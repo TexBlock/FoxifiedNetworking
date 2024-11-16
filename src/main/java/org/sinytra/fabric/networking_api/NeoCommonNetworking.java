@@ -1,17 +1,17 @@
 package org.sinytra.fabric.networking_api;
 
 import net.fabricmc.fabric.impl.networking.PayloadTypeRegistryImpl;
-import net.minecraft.network.ConnectionProtocol;
-import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.NetworkPhase;
+import net.minecraft.network.NetworkSide;
+import net.minecraft.util.Identifier;
 
 public class NeoCommonNetworking {
-    public static final NeoNetworkRegistrar CONFIGURATION_REGISTRY = new NeoNetworkRegistrar(ConnectionProtocol.CONFIGURATION);
-    public static final NeoNetworkRegistrar PLAY_REGISTRY = new NeoNetworkRegistrar(ConnectionProtocol.PLAY);
+    public static final NeoNetworkRegistrar CONFIGURATION_REGISTRY = new NeoNetworkRegistrar(NetworkPhase.CONFIGURATION);
+    public static final NeoNetworkRegistrar PLAY_REGISTRY = new NeoNetworkRegistrar(NetworkPhase.PLAY);
 
     public static final int DEFAULT_CHANNEL_NAME_MAX_LENGTH = 128;
 
-    public static void assertPayloadType(PayloadTypeRegistryImpl<?> payloadTypeRegistry, ResourceLocation channelName, PacketFlow side, ConnectionProtocol phase) {
+    public static void assertPayloadType(PayloadTypeRegistryImpl<?> payloadTypeRegistry, Identifier channelName, NetworkSide side, NetworkPhase phase) {
         if (payloadTypeRegistry == null) {
             return;
         }

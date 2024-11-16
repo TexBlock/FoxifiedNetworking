@@ -19,17 +19,17 @@ package net.fabricmc.fabric.impl.base.event;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import net.fabricmc.fabric.impl.base.toposort.SortableNode;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Identifier;
 
 /**
  * Data of an {@link ArrayBackedEvent} phase.
  */
 class EventPhaseData<T> extends SortableNode<EventPhaseData<T>> {
-	final ResourceLocation id;
+	final Identifier id;
 	T[] listeners;
 
 	@SuppressWarnings("unchecked")
-	EventPhaseData(ResourceLocation id, Class<?> listenerClass) {
+	EventPhaseData(Identifier id, Class<?> listenerClass) {
 		this.id = id;
 		this.listeners = (T[]) Array.newInstance(listenerClass, 0);
 	}

@@ -3,12 +3,12 @@ package org.sinytra.fabric.networking_api.server;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerConfigurationNetworking;
 import net.fabricmc.fabric.impl.networking.PayloadTypeRegistryImpl;
-import net.minecraft.network.ConnectionProtocol;
-import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.NetworkPhase;
+import net.minecraft.network.NetworkSide;
+import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
+import net.minecraft.util.Identifier;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.NetworkRegistry;
 import org.sinytra.fabric.networking_api.NeoCommonNetworking;
@@ -17,41 +17,41 @@ import java.util.Set;
 
 public class NeoServerConfigurationNetworking {
 
-    public static <T extends CustomPacketPayload> boolean registerGlobalReceiver(CustomPacketPayload.Type<T> type, ServerConfigurationNetworking.ConfigurationPacketHandler<T> handler) {
-        NeoCommonNetworking.assertPayloadType(PayloadTypeRegistryImpl.CONFIGURATION_C2S, type.id(), PacketFlow.SERVERBOUND, ConnectionProtocol.CONFIGURATION);
-        return NeoCommonNetworking.CONFIGURATION_REGISTRY.registerGlobalReceiver(type, PacketFlow.SERVERBOUND, handler, ServerConfigNeoContextWrapper::new, ServerConfigurationNetworking.ConfigurationPacketHandler::receive);
+    public static <T extends CustomPayload> boolean registerGlobalReceiver(CustomPayload.Id<T> type, ServerConfigurationNetworking.ConfigurationPacketHandler<T> handler) {
+        NeoCommonNetworking.assertPayloadType(PayloadTypeRegistryImpl.CONFIGURATION_C2S, type.id(), NetworkSide.SERVERBOUND, NetworkPhase.CONFIGURATION);
+        return NeoCommonNetworking.CONFIGURATION_REGISTRY.registerGlobalReceiver(type, NetworkSide.SERVERBOUND, handler, ServerConfigNeoContextWrapper::new, ServerConfigurationNetworking.ConfigurationPacketHandler::receive);
     }
 
-    public static ServerConfigurationNetworking.ConfigurationPacketHandler<?> unregisterGlobalReceiver(ResourceLocation id) {
-        return NeoCommonNetworking.CONFIGURATION_REGISTRY.unregisterGlobalReceiver(id, PacketFlow.SERVERBOUND);
+    public static ServerConfigurationNetworking.ConfigurationPacketHandler<?> unregisterGlobalReceiver(Identifier id) {
+        return NeoCommonNetworking.CONFIGURATION_REGISTRY.unregisterGlobalReceiver(id, NetworkSide.SERVERBOUND);
     }
 
-    public static Set<ResourceLocation> getGlobalReceivers() {
-        return NeoCommonNetworking.CONFIGURATION_REGISTRY.getGlobalReceivers(PacketFlow.SERVERBOUND);
+    public static Set<Identifier> getGlobalReceivers() {
+        return NeoCommonNetworking.CONFIGURATION_REGISTRY.getGlobalReceivers(NetworkSide.SERVERBOUND);
     }
 
-    public static <T extends CustomPacketPayload> boolean registerReceiver(ServerConfigurationPacketListenerImpl networkHandler, CustomPacketPayload.Type<T> type, ServerConfigurationNetworking.ConfigurationPacketHandler<T> handler) {
-        NeoCommonNetworking.assertPayloadType(PayloadTypeRegistryImpl.CONFIGURATION_C2S, type.id(), PacketFlow.SERVERBOUND, ConnectionProtocol.CONFIGURATION);
+    public static <T extends CustomPayload> boolean registerReceiver(ServerConfigurationNetworkHandler networkHandler, CustomPayload.Id<T> type, ServerConfigurationNetworking.ConfigurationPacketHandler<T> handler) {
+        NeoCommonNetworking.assertPayloadType(PayloadTypeRegistryImpl.CONFIGURATION_C2S, type.id(), NetworkSide.SERVERBOUND, NetworkPhase.CONFIGURATION);
         return NeoCommonNetworking.CONFIGURATION_REGISTRY.registerLocalReceiver(type, networkHandler, handler, ServerConfigNeoContextWrapper::new, ServerConfigurationNetworking.ConfigurationPacketHandler::receive);
     }
 
-    public static ServerConfigurationNetworking.ConfigurationPacketHandler<?> unregisterReceiver(ServerConfigurationPacketListenerImpl networkHandler, ResourceLocation id) {
+    public static ServerConfigurationNetworking.ConfigurationPacketHandler<?> unregisterReceiver(ServerConfigurationNetworkHandler networkHandler, Identifier id) {
         return NeoCommonNetworking.CONFIGURATION_REGISTRY.unregisterLocalReceiver(id, networkHandler);
     }
 
-    public static Set<ResourceLocation> getReceived(ServerConfigurationPacketListenerImpl handler) throws IllegalStateException {
+    public static Set<Identifier> getReceived(ServerConfigurationNetworkHandler handler) throws IllegalStateException {
         return NeoCommonNetworking.CONFIGURATION_REGISTRY.getLocalReceivers(handler);
     }
 
-    public static Set<ResourceLocation> getSendable(ServerConfigurationPacketListenerImpl handler) throws IllegalStateException {
+    public static Set<Identifier> getSendable(ServerConfigurationNetworkHandler handler) throws IllegalStateException {
         return NeoCommonNetworking.CONFIGURATION_REGISTRY.getLocalSendable(handler);
     }
 
-    public static boolean canSend(ServerConfigurationPacketListenerImpl handler, ResourceLocation channelName) throws IllegalArgumentException {
+    public static boolean canSend(ServerConfigurationNetworkHandler handler, Identifier channelName) throws IllegalArgumentException {
         return NetworkRegistry.hasChannel(handler, channelName);
     }
 
-    public static PacketSender getSender(ServerConfigurationPacketListenerImpl handler) {
+    public static PacketSender getSender(ServerConfigurationNetworkHandler handler) {
         return new NeoServerPacketSender(handler.getConnection());
     }
 
@@ -62,8 +62,8 @@ public class NeoServerConfigurationNetworking {
         }
 
         @Override
-        public ServerConfigurationPacketListenerImpl networkHandler() {
-            return (ServerConfigurationPacketListenerImpl) context.listener();
+        public ServerConfigurationNetworkHandler networkHandler() {
+            return (ServerConfigurationNetworkHandler) context.listener();
         }
 
         @Override

@@ -16,13 +16,13 @@
 
 package net.fabricmc.fabric.impl.networking.payload;
 
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.login.custom.CustomQueryPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.s2c.login.LoginQueryRequestPayload;
+import net.minecraft.util.Identifier;
 
-public record PacketByteBufLoginQueryRequestPayload(ResourceLocation id, FriendlyByteBuf data) implements CustomQueryPayload {
+public record PacketByteBufLoginQueryRequestPayload(Identifier id, PacketByteBuf data) implements LoginQueryRequestPayload {
 	@Override
-	public void write(FriendlyByteBuf buf) {
+	public void write(PacketByteBuf buf) {
 		PayloadHelper.write(buf, data());
 	}
 }

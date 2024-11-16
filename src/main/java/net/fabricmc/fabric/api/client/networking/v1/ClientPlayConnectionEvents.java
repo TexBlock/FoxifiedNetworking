@@ -19,9 +19,9 @@ package net.fabricmc.fabric.api.client.networking.v1;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.network.packet.CustomPayload;
 
 /**
  * Offers access to events related to the connection to a server on a logical client.
@@ -30,7 +30,7 @@ public final class ClientPlayConnectionEvents {
 	/**
 	 * Event indicating a connection entered the PLAY state, ready for registering channel handlers.
 	 *
-	 * @see ClientPlayNetworking#registerReceiver(CustomPacketPayload.Type, ClientPlayNetworking.PlayPayloadHandler)
+	 * @see ClientPlayNetworking#registerReceiver(CustomPayload.Id, ClientPlayNetworking.PlayPayloadHandler)
 	 */
 	public static final Event<Init> INIT = EventFactory.createArrayBacked(Init.class, callbacks -> (handler, client) -> {
 		for (Init callback : callbacks) {
@@ -66,16 +66,16 @@ public final class ClientPlayConnectionEvents {
 
 	@FunctionalInterface
 	public interface Init {
-		void onPlayInit(ClientPacketListener handler, Minecraft client);
+		void onPlayInit(ClientPlayNetworkHandler handler, MinecraftClient client);
 	}
 
 	@FunctionalInterface
 	public interface Join {
-		void onPlayReady(ClientPacketListener handler, PacketSender sender, Minecraft client);
+		void onPlayReady(ClientPlayNetworkHandler handler, PacketSender sender, MinecraftClient client);
 	}
 
 	@FunctionalInterface
 	public interface Disconnect {
-		void onPlayDisconnect(ClientPacketListener handler, Minecraft client);
+		void onPlayDisconnect(ClientPlayNetworkHandler handler, MinecraftClient client);
 	}
 }

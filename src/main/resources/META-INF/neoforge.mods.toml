@@ -7,11 +7,11 @@ license = "Insert License Here"
 modId = "foxified_networking"
 version = "${version}"
 displayName = "Foxified Networking API"
-authors = "Me!"
+authors = "TexTrue"
 description = '''
 Low-level, vanilla protocol oriented networking hooks.
 '''
-logoFile = "assets/fabric-networking-api-v1/icon.png"
+logoFile = "icon.png"
 
 [[dependencies.foxified_networking]]
 modId = "neoforge"

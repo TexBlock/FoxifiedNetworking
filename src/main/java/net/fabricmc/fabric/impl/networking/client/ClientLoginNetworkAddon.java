@@ -28,20 +28,20 @@ import net.fabricmc.fabric.impl.networking.AbstractNetworkAddon;
 import net.fabricmc.fabric.impl.networking.payload.PacketByteBufLoginQueryRequestPayload;
 import net.fabricmc.fabric.impl.networking.payload.PacketByteBufLoginQueryResponse;
 import net.fabricmc.fabric.mixin.networking.client.accessor.ClientLoginNetworkHandlerAccessor;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.PacketSendListener;
-import net.minecraft.network.protocol.login.ClientboundCustomQueryPacket;
-import net.minecraft.network.protocol.login.ServerboundCustomQueryAnswerPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientLoginNetworkHandler;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.PacketCallbacks;
+import net.minecraft.network.packet.c2s.login.LoginQueryResponseC2SPacket;
+import net.minecraft.network.packet.s2c.login.LoginQueryRequestS2CPacket;
+import net.minecraft.util.Identifier;
 
 public final class ClientLoginNetworkAddon extends AbstractNetworkAddon<ClientLoginNetworking.LoginQueryRequestHandler> {
-	private final ClientHandshakePacketListenerImpl handler;
-	private final Minecraft client;
+	private final ClientLoginNetworkHandler handler;
+	private final MinecraftClient client;
 	private boolean firstResponse = true;
 
-	public ClientLoginNetworkAddon(ClientHandshakePacketListenerImpl handler, Minecraft client) {
+	public ClientLoginNetworkAddon(ClientLoginNetworkHandler handler, MinecraftClient client) {
 		super(ClientNetworkingImpl.LOGIN, "ClientLoginNetworkAddon for Client");
 		this.handler = handler;
 		this.client = client;
@@ -52,12 +52,12 @@ public final class ClientLoginNetworkAddon extends AbstractNetworkAddon<ClientLo
 		ClientLoginConnectionEvents.INIT.invoker().onLoginStart(this.handler, this.client);
 	}
 
-	public boolean handlePacket(ClientboundCustomQueryPacket packet) {
+	public boolean handlePacket(LoginQueryRequestS2CPacket packet) {
 		PacketByteBufLoginQueryRequestPayload payload = (PacketByteBufLoginQueryRequestPayload) packet.payload();
-		return handlePacket(packet.transactionId(), packet.payload().id(), payload.data());
+		return handlePacket(packet.queryId(), packet.payload().id(), payload.data());
 	}
 
-	private boolean handlePacket(int queryId, ResourceLocation channelName, FriendlyByteBuf originalBuf) {
+	private boolean handlePacket(int queryId, Identifier channelName, PacketByteBuf originalBuf) {
 		this.logger.debug("Handling inbound login response with id {} and channel with name {}", queryId, channelName);
 
 		if (this.firstResponse) {
@@ -71,17 +71,17 @@ public final class ClientLoginNetworkAddon extends AbstractNetworkAddon<ClientLo
 			return false;
 		}
 
-		FriendlyByteBuf buf = PacketByteBufs.slice(originalBuf);
-		List<PacketSendListener> callbacks = new ArrayList<>();
+		PacketByteBuf buf = PacketByteBufs.slice(originalBuf);
+		List<PacketCallbacks> callbacks = new ArrayList<>();
 
 		try {
-			CompletableFuture<@Nullable FriendlyByteBuf> future = handler.receive(this.client, this.handler, buf, callbacks::add);
+			CompletableFuture<@Nullable PacketByteBuf> future = handler.receive(this.client, this.handler, buf, callbacks::add);
 			future.thenAccept(result -> {
-				ServerboundCustomQueryAnswerPacket packet = new ServerboundCustomQueryAnswerPacket(queryId, result == null ? null : new PacketByteBufLoginQueryResponse(result));
-				((ClientLoginNetworkHandlerAccessor) this.handler).getConnection().send(packet, new PacketSendListener() {
+				LoginQueryResponseC2SPacket packet = new LoginQueryResponseC2SPacket(queryId, result == null ? null : new PacketByteBufLoginQueryResponse(result));
+				((ClientLoginNetworkHandlerAccessor) this.handler).getConnection().send(packet, new PacketCallbacks() {
 					@Override
 					public void onSuccess() {
-						callbacks.forEach(PacketSendListener::onSuccess);
+						callbacks.forEach(PacketCallbacks::onSuccess);
 					}
 				});
 			});
@@ -94,11 +94,11 @@ public final class ClientLoginNetworkAddon extends AbstractNetworkAddon<ClientLo
 	}
 
 	@Override
-	protected void handleRegistration(ResourceLocation channelName) {
+	protected void handleRegistration(Identifier channelName) {
 	}
 
 	@Override
-	protected void handleUnregistration(ResourceLocation channelName) {
+	protected void handleUnregistration(Identifier channelName) {
 	}
 
 	@Override
@@ -107,7 +107,7 @@ public final class ClientLoginNetworkAddon extends AbstractNetworkAddon<ClientLo
 	}
 
 	@Override
-	protected boolean isReservedChannel(ResourceLocation channelName) {
+	protected boolean isReservedChannel(Identifier channelName) {
 		return false;
 	}
 }

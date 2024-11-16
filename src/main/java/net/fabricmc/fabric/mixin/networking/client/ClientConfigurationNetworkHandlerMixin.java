@@ -17,12 +17,12 @@
 package net.fabricmc.fabric.mixin.networking.client;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationConnectionEvents;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
-import net.minecraft.client.multiplayer.ClientConfigurationPacketListenerImpl;
-import net.minecraft.client.multiplayer.CommonListenerCookie;
-import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.configuration.ClientboundFinishConfigurationPacket;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientCommonNetworkHandler;
+import net.minecraft.client.network.ClientConfigurationNetworkHandler;
+import net.minecraft.client.network.ClientConnectionState;
+import net.minecraft.network.ClientConnection;
+import net.minecraft.network.packet.s2c.config.ReadyS2CPacket;
 import org.sinytra.fabric.networking_api.NeoListenableNetworkHandler;
 import org.sinytra.fabric.networking_api.client.NeoClientConfigurationNetworking;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,27 +31,27 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 // We want to apply a bit earlier than other mods which may not use us in order to prevent refCount issues
-@Mixin(value = ClientConfigurationPacketListenerImpl.class, priority = 999)
-public abstract class ClientConfigurationNetworkHandlerMixin extends ClientCommonPacketListenerImpl implements NeoListenableNetworkHandler {
-	protected ClientConfigurationNetworkHandlerMixin(Minecraft client, Connection connection, CommonListenerCookie connectionState) {
+@Mixin(value = ClientConfigurationNetworkHandler.class, priority = 999)
+public abstract class ClientConfigurationNetworkHandlerMixin extends ClientCommonNetworkHandler implements NeoListenableNetworkHandler {
+	protected ClientConfigurationNetworkHandlerMixin(MinecraftClient client, ClientConnection connection, ClientConnectionState connectionState) {
 		super(client, connection, connectionState);
 	}
 
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void initAddon(CallbackInfo ci) {
 		NeoClientConfigurationNetworking.setClientConfigurationAddon(this);
-		ClientConfigurationConnectionEvents.INIT.invoker().onConfigurationInit((ClientConfigurationPacketListenerImpl) (Object) this, this.minecraft);
+		ClientConfigurationConnectionEvents.INIT.invoker().onConfigurationInit((ClientConfigurationNetworkHandler) (Object) this, this.client);
 	}
 
-	@Inject(method = "handleConfigurationFinished", at = @At(value = "NEW", target = "(Lnet/minecraft/client/Minecraft;Lnet/minecraft/network/Connection;Lnet/minecraft/client/multiplayer/CommonListenerCookie;)Lnet/minecraft/client/multiplayer/ClientPacketListener;"))
-	public void handleComplete(ClientboundFinishConfigurationPacket packet, CallbackInfo ci) {
-		ClientConfigurationConnectionEvents.COMPLETE.invoker().onConfigurationComplete((ClientConfigurationPacketListenerImpl) (Object) this, this.minecraft);
-		ClientConfigurationConnectionEvents.READY.invoker().onConfigurationReady((ClientConfigurationPacketListenerImpl) (Object) this, this.minecraft);
+	@Inject(method = "onReady", at = @At(value = "NEW", target = "(Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/network/ClientConnection;Lnet/minecraft/client/network/ClientConnectionState;)Lnet/minecraft/client/network/ClientPlayNetworkHandler;"))
+	public void handleComplete(ReadyS2CPacket packet, CallbackInfo ci) {
+		ClientConfigurationConnectionEvents.COMPLETE.invoker().onConfigurationComplete((ClientConfigurationNetworkHandler) (Object) this, this.client);
+		ClientConfigurationConnectionEvents.READY.invoker().onConfigurationReady((ClientConfigurationNetworkHandler) (Object) this, this.client);
 		NeoClientConfigurationNetworking.setClientConfigurationAddon(null);
 	}
 
 	@Override
 	public void handleDisconnect() {
-		ClientConfigurationConnectionEvents.DISCONNECT.invoker().onConfigurationDisconnect((ClientConfigurationPacketListenerImpl) (Object) this, this.minecraft);
+		ClientConfigurationConnectionEvents.DISCONNECT.invoker().onConfigurationDisconnect((ClientConfigurationNetworkHandler) (Object) this, this.client);
 	}
 }

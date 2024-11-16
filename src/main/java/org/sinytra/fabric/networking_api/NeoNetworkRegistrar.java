@@ -2,12 +2,12 @@ package org.sinytra.fabric.networking_api;
 
 import net.fabricmc.fabric.impl.networking.PayloadTypeRegistryImpl;
 import net.fabricmc.fabric.mixin.networking.accessor.NetworkRegistryAccessor;
-import net.minecraft.network.ConnectionProtocol;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.NetworkPhase;
+import net.minecraft.network.NetworkSide;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.util.Identifier;
 import net.neoforged.neoforge.common.extensions.ICommonPacketListener;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
@@ -23,70 +23,70 @@ import java.util.stream.Collectors;
 
 public class NeoNetworkRegistrar {
     // Not our actual codec, see NetworkRegistryMixin
-    public static final StreamCodec<?, ?> DUMMY_CODEC = StreamCodec.of((a, b) -> {
+    public static final PacketCodec<?, ?> DUMMY_CODEC = PacketCodec.ofStatic((a, b) -> {
         throw new UnsupportedOperationException();
     }, a -> {
         throw new UnsupportedOperationException();
     });
 
-    private final ConnectionProtocol protocol;
+    private final NetworkPhase protocol;
 
-    private final Map<ResourceLocation, NeoPayloadHandler<?>> registeredPayloads = new HashMap<>();
+    private final Map<Identifier, NeoPayloadHandler<?>> registeredPayloads = new HashMap<>();
 
-    public NeoNetworkRegistrar(ConnectionProtocol protocol) {
+    public NeoNetworkRegistrar(NetworkPhase protocol) {
         this.protocol = protocol;
     }
 
-    public static boolean hasCodecFor(ConnectionProtocol protocol, PacketFlow flow, ResourceLocation id) {
-        PayloadTypeRegistryImpl<? extends FriendlyByteBuf> registry = getPayloadRegistry(protocol, flow);
+    public static boolean hasCodecFor(NetworkPhase protocol, NetworkSide flow, Identifier id) {
+        PayloadTypeRegistryImpl<? extends PacketByteBuf> registry = getPayloadRegistry(protocol, flow);
         return registry.get(id) != null;
     }
 
-    public static PayloadTypeRegistryImpl<? extends FriendlyByteBuf> getPayloadRegistry(ConnectionProtocol protocol, PacketFlow flow) {
-        if (protocol == ConnectionProtocol.PLAY) {
-            return flow == PacketFlow.SERVERBOUND ? PayloadTypeRegistryImpl.PLAY_C2S : PayloadTypeRegistryImpl.PLAY_S2C;
-        } else if (protocol == ConnectionProtocol.CONFIGURATION) {
-            return flow == PacketFlow.SERVERBOUND ? PayloadTypeRegistryImpl.CONFIGURATION_C2S : PayloadTypeRegistryImpl.CONFIGURATION_S2C;
+    public static PayloadTypeRegistryImpl<? extends PacketByteBuf> getPayloadRegistry(NetworkPhase protocol, NetworkSide flow) {
+        if (protocol == NetworkPhase.PLAY) {
+            return flow == NetworkSide.SERVERBOUND ? PayloadTypeRegistryImpl.PLAY_C2S : PayloadTypeRegistryImpl.PLAY_S2C;
+        } else if (protocol == NetworkPhase.CONFIGURATION) {
+            return flow == NetworkSide.SERVERBOUND ? PayloadTypeRegistryImpl.CONFIGURATION_C2S : PayloadTypeRegistryImpl.CONFIGURATION_S2C;
         } else {
             throw new UnsupportedOperationException();
         }
     }
 
-    public <PAYLOAD extends CustomPacketPayload, CONTEXT, HANDLER> boolean registerGlobalReceiver(CustomPacketPayload.Type<PAYLOAD> type, PacketFlow packetFlow, HANDLER handler, Function<IPayloadContext, CONTEXT> ctxFactory, TriConsumer<HANDLER, PAYLOAD, CONTEXT> consumer) {
+    public <PAYLOAD extends CustomPayload, CONTEXT, HANDLER> boolean registerGlobalReceiver(CustomPayload.Id<PAYLOAD> type, NetworkSide packetFlow, HANDLER handler, Function<IPayloadContext, CONTEXT> ctxFactory, TriConsumer<HANDLER, PAYLOAD, CONTEXT> consumer) {
         NeoPayloadHandler<PAYLOAD> neoHandler = getOrRegisterNativeHandler(type);
         return neoHandler.registerGlobalHandler(packetFlow, handler, ctxFactory, consumer);
     }
 
-    public <HANDLER> HANDLER unregisterGlobalReceiver(ResourceLocation id, PacketFlow flow) {
+    public <HANDLER> HANDLER unregisterGlobalReceiver(Identifier id, NetworkSide flow) {
         NeoPayloadHandler<?> neoHandler = registeredPayloads.get(id);
         return neoHandler != null ? neoHandler.unregisterGlobalHandler(flow) : null;
     }
 
-    public Set<ResourceLocation> getGlobalReceivers(PacketFlow flow) {
+    public Set<Identifier> getGlobalReceivers(NetworkSide flow) {
         return registeredPayloads.entrySet().stream()
             .filter(e -> e.getValue().hasGlobalHandler(flow))
             .map(Map.Entry::getKey)
             .collect(Collectors.toSet());
     }
 
-    public <PAYLOAD extends CustomPacketPayload, CONTEXT, HANDLER> boolean registerLocalReceiver(CustomPacketPayload.Type<PAYLOAD> type, ICommonPacketListener listener, HANDLER handler, Function<IPayloadContext, CONTEXT> ctxFactory, TriConsumer<HANDLER, PAYLOAD, CONTEXT> consumer) {
+    public <PAYLOAD extends CustomPayload, CONTEXT, HANDLER> boolean registerLocalReceiver(CustomPayload.Id<PAYLOAD> type, ICommonPacketListener listener, HANDLER handler, Function<IPayloadContext, CONTEXT> ctxFactory, TriConsumer<HANDLER, PAYLOAD, CONTEXT> consumer) {
         NeoPayloadHandler<PAYLOAD> neoHandler = getOrRegisterNativeHandler(type);
         return neoHandler.registerLocalReceiver(listener, handler, ctxFactory, consumer);
     }
 
-    public <HANDLER> HANDLER unregisterLocalReceiver(ResourceLocation id, ICommonPacketListener listener) {
+    public <HANDLER> HANDLER unregisterLocalReceiver(Identifier id, ICommonPacketListener listener) {
         NeoPayloadHandler<?> neoHandler = registeredPayloads.get(id);
         return neoHandler != null ? neoHandler.unregisterLocalHandler(listener) : null;
     }
 
-    public Set<ResourceLocation> getLocalReceivers(ICommonPacketListener listener) {
+    public Set<Identifier> getLocalReceivers(ICommonPacketListener listener) {
         return registeredPayloads.entrySet().stream()
             .filter(e -> e.getValue().hasLocalHandler(listener))
             .map(Map.Entry::getKey)
             .collect(Collectors.toSet());
     }
 
-    public Set<ResourceLocation> getLocalSendable(ICommonPacketListener listener) {
+    public Set<Identifier> getLocalSendable(ICommonPacketListener listener) {
         NetworkPayloadSetup payloadSetup = ChannelAttributes.getPayloadSetup(listener.getConnection());
         if (payloadSetup == null) {
             return Set.of();
@@ -95,13 +95,13 @@ public class NeoNetworkRegistrar {
     }
 
     @SuppressWarnings("unchecked")
-    private <PAYLOAD extends CustomPacketPayload> NeoPayloadHandler<PAYLOAD> getOrRegisterNativeHandler(CustomPacketPayload.Type<PAYLOAD> type) {
+    private <PAYLOAD extends CustomPayload> NeoPayloadHandler<PAYLOAD> getOrRegisterNativeHandler(CustomPayload.Id<PAYLOAD> type) {
         return (NeoPayloadHandler<PAYLOAD>) registeredPayloads.computeIfAbsent(type.id(), k -> {
             NeoPayloadHandler<PAYLOAD> handler = new NeoPayloadHandler<>();
             boolean setup = NetworkRegistryAccessor.getSetup();
 
             NetworkRegistryAccessor.setSetup(false);
-            NetworkRegistry.register(type, (StreamCodec<? super FriendlyByteBuf, PAYLOAD>) DUMMY_CODEC, handler, List.of(protocol), Optional.empty(), "1.0", true);
+            NetworkRegistry.register(type, (PacketCodec<? super PacketByteBuf, PAYLOAD>) DUMMY_CODEC, handler, List.of(protocol), Optional.empty(), "1.0", true);
             NetworkRegistryAccessor.setSetup(setup);
 
             // TODO Send registration message when registering late
@@ -109,8 +109,8 @@ public class NeoNetworkRegistrar {
         });
     }
 
-    public static class NeoPayloadHandler<PAYLOAD extends CustomPacketPayload> implements IPayloadHandler<PAYLOAD> {
-        private final Map<PacketFlow, NeoSubHandler<PAYLOAD, ?, ?>> globalReceivers = new HashMap<>();
+    public static class NeoPayloadHandler<PAYLOAD extends CustomPayload> implements IPayloadHandler<PAYLOAD> {
+        private final Map<NetworkSide, NeoSubHandler<PAYLOAD, ?, ?>> globalReceivers = new HashMap<>();
         private final Map<ICommonPacketListener, NeoSubHandler<PAYLOAD, ?, ?>> localReceivers = new HashMap<>();
 
         @Override
@@ -125,11 +125,11 @@ public class NeoNetworkRegistrar {
             }
         }
 
-        public boolean hasGlobalHandler(PacketFlow flow) {
+        public boolean hasGlobalHandler(NetworkSide flow) {
             return globalReceivers.containsKey(flow);
         }
 
-        public <CONTEXT, HANDLER> boolean registerGlobalHandler(PacketFlow flow, HANDLER original, Function<IPayloadContext, CONTEXT> ctxFactory, TriConsumer<HANDLER, PAYLOAD, CONTEXT> consumer) {
+        public <CONTEXT, HANDLER> boolean registerGlobalHandler(NetworkSide flow, HANDLER original, Function<IPayloadContext, CONTEXT> ctxFactory, TriConsumer<HANDLER, PAYLOAD, CONTEXT> consumer) {
             if (!hasGlobalHandler(flow)) {
                 globalReceivers.put(flow, new NeoSubHandler<>(original, ctxFactory, consumer));
                 return true;
@@ -150,7 +150,7 @@ public class NeoNetworkRegistrar {
         }
 
         @Nullable
-        public <HANDLER> HANDLER unregisterGlobalHandler(PacketFlow flow) {
+        public <HANDLER> HANDLER unregisterGlobalHandler(NetworkSide flow) {
             NeoSubHandler subHandler = globalReceivers.remove(flow);
             return subHandler != null ? (HANDLER) subHandler.handler() : null;
         }
@@ -162,5 +162,5 @@ public class NeoNetworkRegistrar {
         }
     }
 
-    record NeoSubHandler<PAYLOAD extends CustomPacketPayload, CONTEXT, HANDLER>(HANDLER handler, Function<IPayloadContext, CONTEXT> ctxFactory, TriConsumer<HANDLER, PAYLOAD, CONTEXT> consumer) { }
+    record NeoSubHandler<PAYLOAD extends CustomPayload, CONTEXT, HANDLER>(HANDLER handler, Function<IPayloadContext, CONTEXT> ctxFactory, TriConsumer<HANDLER, PAYLOAD, CONTEXT> consumer) { }
 }

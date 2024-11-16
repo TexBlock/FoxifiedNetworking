@@ -18,8 +18,8 @@ package net.fabricmc.fabric.mixin.networking;
 
 import net.fabricmc.fabric.api.networking.v1.FabricServerConfigurationNetworkHandler;
 import net.fabricmc.fabric.api.networking.v1.ServerConfigurationConnectionEvents;
-import net.minecraft.server.network.ConfigurationTask;
-import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
+import net.minecraft.server.network.ServerPlayerConfigurationTask;
 import net.neoforged.neoforge.common.extensions.IServerConfigurationPacketListenerExtension;
 import org.sinytra.fabric.networking_api.NeoListenableNetworkHandler;
 import org.spongepowered.asm.mixin.Final;
@@ -32,29 +32,29 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Queue;
 
 // We want to apply a bit earlier than other mods which may not use us in order to prevent refCount issues
-@Mixin(value = ServerConfigurationPacketListenerImpl.class, priority = 900)
+@Mixin(value = ServerConfigurationNetworkHandler.class, priority = 900)
 public abstract class ServerConfigurationNetworkHandlerMixin implements FabricServerConfigurationNetworkHandler, NeoListenableNetworkHandler {
     @Shadow
     @Final
-    private Queue<ConfigurationTask> configurationTasks;
+    private Queue<ServerPlayerConfigurationTask> tasks;
 
     @Override
-    public void addTask(ConfigurationTask task) {
-        configurationTasks.add(task);
+    public void addTask(ServerPlayerConfigurationTask task) {
+        tasks.add(task);
     }
 
     @Override
-    public void completeTask(ConfigurationTask.Type key) {
-        ((IServerConfigurationPacketListenerExtension) this).finishCurrentTask(key);
+    public void completeTask(ServerPlayerConfigurationTask.Key key) {
+        ((IServerConfigurationPacketListenerExtension) this).onTaskFinished(key);
     }
 
     @Inject(method = "runConfiguration", at = @At("HEAD"))
     private void onPreConfiguration(CallbackInfo ci) {
-        ServerConfigurationConnectionEvents.BEFORE_CONFIGURE.invoker().onSendConfiguration((ServerConfigurationPacketListenerImpl) (Object) this, ((ServerConfigurationPacketListenerImpl) (Object) this).server);
+        ServerConfigurationConnectionEvents.BEFORE_CONFIGURE.invoker().onSendConfiguration((ServerConfigurationNetworkHandler) (Object) this, ((ServerConfigurationNetworkHandler) (Object) this).server);
     }
     
     @Override
     public void handleDisconnect() {
-        ServerConfigurationConnectionEvents.DISCONNECT.invoker().onConfigureDisconnect((ServerConfigurationPacketListenerImpl) (Object) this, ((ServerConfigurationPacketListenerImpl) (Object) this).server);
+        ServerConfigurationConnectionEvents.DISCONNECT.invoker().onConfigureDisconnect((ServerConfigurationNetworkHandler) (Object) this, ((ServerConfigurationNetworkHandler) (Object) this).server);
     }
 }

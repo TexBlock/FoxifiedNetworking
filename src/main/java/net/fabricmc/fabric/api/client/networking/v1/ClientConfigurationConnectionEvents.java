@@ -18,9 +18,9 @@ package net.fabricmc.fabric.api.client.networking.v1;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientConfigurationPacketListenerImpl;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientConfigurationNetworkHandler;
+import net.minecraft.network.packet.CustomPayload;
 
 /**
  * Offers access to events related to the configuration connection to a server on a logical client.
@@ -31,7 +31,7 @@ public final class ClientConfigurationConnectionEvents {
 	 *
 	 * <p>No packets should be sent when this event is invoked.
 	 *
-	 * @see ClientConfigurationNetworking#registerReceiver(CustomPacketPayload.Type, ClientConfigurationNetworking.ConfigurationPayloadHandler)
+	 * @see ClientConfigurationNetworking#registerReceiver(CustomPayload.Id, ClientConfigurationNetworking.ConfigurationPayloadHandler)
 	 */
 	public static final Event<Init> INIT = EventFactory.createArrayBacked(Init.class, callbacks -> (handler, client) -> {
 		for (Init callback : callbacks) {
@@ -77,22 +77,22 @@ public final class ClientConfigurationConnectionEvents {
 
 	@FunctionalInterface
 	public interface Init {
-		void onConfigurationInit(ClientConfigurationPacketListenerImpl handler, Minecraft client);
+		void onConfigurationInit(ClientConfigurationNetworkHandler handler, MinecraftClient client);
 	}
 
 	@FunctionalInterface
 	public interface Start {
-		void onConfigurationStart(ClientConfigurationPacketListenerImpl handler, Minecraft client);
+		void onConfigurationStart(ClientConfigurationNetworkHandler handler, MinecraftClient client);
 	}
 
 	@FunctionalInterface
 	public interface Complete {
-		void onConfigurationComplete(ClientConfigurationPacketListenerImpl handler, Minecraft client);
+		void onConfigurationComplete(ClientConfigurationNetworkHandler handler, MinecraftClient client);
 	}
 
 	@FunctionalInterface
 	public interface Disconnect {
-		void onConfigurationDisconnect(ClientConfigurationPacketListenerImpl handler, Minecraft client);
+		void onConfigurationDisconnect(ClientConfigurationNetworkHandler handler, MinecraftClient client);
 	}
 
 	// Deprecated:
@@ -113,6 +113,6 @@ public final class ClientConfigurationConnectionEvents {
 	@Deprecated
 	@FunctionalInterface
 	public interface Ready {
-		void onConfigurationReady(ClientConfigurationPacketListenerImpl handler, Minecraft client);
+		void onConfigurationReady(ClientConfigurationNetworkHandler handler, MinecraftClient client);
 	}
 }

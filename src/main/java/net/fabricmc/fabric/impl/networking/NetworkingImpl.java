@@ -16,20 +16,20 @@
 
 package net.fabricmc.fabric.impl.networking;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Identifier;
 
 public final class NetworkingImpl {
 	/**
 	 * Id of packet used to register supported channels.
 	 */
-	public static final ResourceLocation REGISTER_CHANNEL = ResourceLocation.withDefaultNamespace("register");
+	public static final Identifier REGISTER_CHANNEL = Identifier.ofVanilla("register");
 
 	/**
 	 * Id of packet used to unregister supported channels.
 	 */
-	public static final ResourceLocation UNREGISTER_CHANNEL = ResourceLocation.withDefaultNamespace("unregister");
+	public static final Identifier UNREGISTER_CHANNEL = Identifier.ofVanilla("unregister");
 
-	public static boolean isReservedCommonChannel(ResourceLocation channelName) {
+	public static boolean isReservedCommonChannel(Identifier channelName) {
 		return channelName.equals(REGISTER_CHANNEL) || channelName.equals(UNREGISTER_CHANNEL);
 	}
 }

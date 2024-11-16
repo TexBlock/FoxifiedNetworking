@@ -17,12 +17,12 @@
 package net.fabricmc.fabric.mixin.networking.accessor;
 
 import java.util.Set;
-import net.minecraft.server.network.ServerPlayerConnection;
+import net.minecraft.server.network.PlayerAssociatedNetworkHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(targets = "net/minecraft/server/level/ChunkMap$TrackedEntity")
+@Mixin(targets = "net/minecraft/server/world/ServerChunkLoadingManager$EntityTracker")
 public interface EntityTrackerAccessor {
-	@Accessor("seenBy")
-	Set<ServerPlayerConnection> getPlayersTracking();
+	@Accessor("listeners")
+	Set<PlayerAssociatedNetworkHandler> getPlayersTracking();
 }

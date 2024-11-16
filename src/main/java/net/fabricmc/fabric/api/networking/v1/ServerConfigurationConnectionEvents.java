@@ -17,7 +17,7 @@
 package net.fabricmc.fabric.api.networking.v1;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 
@@ -77,11 +77,11 @@ public final class ServerConfigurationConnectionEvents {
 
 	@FunctionalInterface
 	public interface Configure {
-		void onSendConfiguration(ServerConfigurationPacketListenerImpl handler, MinecraftServer server);
+		void onSendConfiguration(ServerConfigurationNetworkHandler handler, MinecraftServer server);
 	}
 
 	@FunctionalInterface
 	public interface Disconnect {
-		void onConfigureDisconnect(ServerConfigurationPacketListenerImpl handler, MinecraftServer server);
+		void onConfigureDisconnect(ServerConfigurationNetworkHandler handler, MinecraftServer server);
 	}
 }

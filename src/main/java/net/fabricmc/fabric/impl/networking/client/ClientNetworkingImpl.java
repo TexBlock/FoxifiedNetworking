@@ -21,40 +21,40 @@ import net.fabricmc.fabric.impl.networking.GlobalReceiverRegistry;
 import net.fabricmc.fabric.impl.networking.NetworkHandlerExtensions;
 import net.fabricmc.fabric.mixin.networking.client.accessor.ConnectScreenAccessor;
 import net.fabricmc.fabric.mixin.networking.client.accessor.MinecraftClientAccessor;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.ConnectScreen;
-import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
-import net.minecraft.network.Connection;
-import net.minecraft.network.ConnectionProtocol;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.network.protocol.common.ServerCommonPacketListener;
-import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
+import net.minecraft.client.network.ClientLoginNetworkHandler;
+import net.minecraft.network.ClientConnection;
+import net.minecraft.network.NetworkPhase;
+import net.minecraft.network.NetworkSide;
+import net.minecraft.network.listener.ServerCommonPacketListener;
+import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
 public final class ClientNetworkingImpl {
-	public static final GlobalReceiverRegistry<ClientLoginNetworking.LoginQueryRequestHandler> LOGIN = new GlobalReceiverRegistry<>(PacketFlow.CLIENTBOUND, ConnectionProtocol.LOGIN, null);
+	public static final GlobalReceiverRegistry<ClientLoginNetworking.LoginQueryRequestHandler> LOGIN = new GlobalReceiverRegistry<>(NetworkSide.CLIENTBOUND, NetworkPhase.LOGIN, null);
 
-	public static ClientLoginNetworkAddon getAddon(ClientHandshakePacketListenerImpl handler) {
+	public static ClientLoginNetworkAddon getAddon(ClientLoginNetworkHandler handler) {
 		return (ClientLoginNetworkAddon) ((NetworkHandlerExtensions) handler).getAddon();
 	}
 
-	public static Packet<ServerCommonPacketListener> createC2SPacket(CustomPacketPayload payload) {
+	public static Packet<ServerCommonPacketListener> createC2SPacket(CustomPayload payload) {
 		Objects.requireNonNull(payload, "Payload cannot be null");
-		Objects.requireNonNull(payload.type(), "CustomPayload#getId() cannot return null for payload class: " + payload.getClass());
+		Objects.requireNonNull(payload.getId(), "CustomPayload#getId() cannot return null for payload class: " + payload.getClass());
 
-		return new ServerboundCustomPayloadPacket(payload);
+		return new CustomPayloadC2SPacket(payload);
 	}
 
 	/**
 	 * Due to the way logging into an integrated or remote dedicated server will differ, we need to obtain the login client connection differently.
 	 */
 	@Nullable
-	public static Connection getLoginConnection() {
-		final Connection connection = ((MinecraftClientAccessor) Minecraft.getInstance()).getConnection();
+	public static ClientConnection getLoginConnection() {
+		final ClientConnection connection = ((MinecraftClientAccessor) MinecraftClient.getInstance()).getConnection();
 
 		// Check if we are connecting to an integrated server. This will set the field on MinecraftClient
 		if (connection != null) {
@@ -62,8 +62,8 @@ public final class ClientNetworkingImpl {
 		} else {
 			// We are probably connecting to a remote server.
 			// Check if the ConnectScreen is the currentScreen to determine that:
-			if (Minecraft.getInstance().screen instanceof ConnectScreen) {
-				return ((ConnectScreenAccessor) Minecraft.getInstance().screen).getConnection();
+			if (MinecraftClient.getInstance().currentScreen instanceof ConnectScreen) {
+				return ((ConnectScreenAccessor) MinecraftClient.getInstance().currentScreen).getConnection();
 			}
 		}
 

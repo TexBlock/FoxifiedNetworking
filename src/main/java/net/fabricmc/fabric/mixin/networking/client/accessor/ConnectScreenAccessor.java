@@ -16,13 +16,13 @@
 
 package net.fabricmc.fabric.mixin.networking.client.accessor;
 
-import net.minecraft.client.gui.screens.ConnectScreen;
-import net.minecraft.network.Connection;
+import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
+import net.minecraft.network.ClientConnection;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(ConnectScreen.class)
 public interface ConnectScreenAccessor {
 	@Accessor
-	Connection getConnection();
+	ClientConnection getConnection();
 }

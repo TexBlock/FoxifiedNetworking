@@ -18,9 +18,9 @@ package net.fabricmc.fabric.api.client.networking.v1;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientLoginNetworkHandler;
+import net.minecraft.util.Identifier;
 
 /**
  * Offers access to events related to the connection to a server on the client while the server is processing the client's login request.
@@ -31,7 +31,7 @@ public final class ClientLoginConnectionEvents {
 	 * This event may be used by mods to prepare their client side state.
 	 * This event does not guarantee that a login attempt will be successful.
 	 *
-	 * @see ClientLoginNetworking#registerReceiver(ResourceLocation, ClientLoginNetworking.LoginQueryRequestHandler)
+	 * @see ClientLoginNetworking#registerReceiver(Identifier, ClientLoginNetworking.LoginQueryRequestHandler)
 	 */
 	public static final Event<Init> INIT = EventFactory.createArrayBacked(Init.class, callbacks -> (handler, client) -> {
 		for (Init callback : callbacks) {
@@ -78,7 +78,7 @@ public final class ClientLoginConnectionEvents {
 	 */
 	@FunctionalInterface
 	public interface Init {
-		void onLoginStart(ClientHandshakePacketListenerImpl handler, Minecraft client);
+		void onLoginStart(ClientLoginNetworkHandler handler, MinecraftClient client);
 	}
 
 	/**
@@ -86,7 +86,7 @@ public final class ClientLoginConnectionEvents {
 	 */
 	@FunctionalInterface
 	public interface QueryStart {
-		void onLoginQueryStart(ClientHandshakePacketListenerImpl handler, Minecraft client);
+		void onLoginQueryStart(ClientLoginNetworkHandler handler, MinecraftClient client);
 	}
 
 	/**
@@ -94,6 +94,6 @@ public final class ClientLoginConnectionEvents {
 	 */
 	@FunctionalInterface
 	public interface Disconnect {
-		void onLoginDisconnect(ClientHandshakePacketListenerImpl handler, Minecraft client);
+		void onLoginDisconnect(ClientLoginNetworkHandler handler, MinecraftClient client);
 	}
 }

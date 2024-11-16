@@ -2,8 +2,8 @@ package org.sinytra.fabric.networking_api;
 
 import net.fabricmc.fabric.api.networking.v1.ServerConfigurationConnectionEvents;
 import net.minecraft.SharedConstants;
-import net.minecraft.server.commands.DebugConfigCommand;
-import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
+import net.minecraft.server.command.DebugConfigCommand;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.common.NeoForge;
@@ -21,7 +21,7 @@ public class NetworkingEventHooks {
     }
 
     private static void registerCommands(RegisterCommandsEvent event) {
-        if (SharedConstants.IS_RUNNING_IN_IDE) {
+        if (SharedConstants.isDevelopment) {
             // Command is registered when isDevelopment is set.
             return;
         }
@@ -41,7 +41,7 @@ public class NetworkingEventHooks {
     }
 
     private static void onConfiguration(RegisterConfigurationTasksEvent event) {
-        ServerConfigurationPacketListenerImpl listener = (ServerConfigurationPacketListenerImpl) event.getListener();
+        ServerConfigurationNetworkHandler listener = (ServerConfigurationNetworkHandler) event.getListener();
         ServerConfigurationConnectionEvents.CONFIGURE.invoker().onSendConfiguration(listener, listener.server);
     }
 }
