@@ -34,7 +34,7 @@ loom {
 dependencies {
     minecraft "net.minecraft:minecraft:$project.minecraft_version"
     mappings loom.layered {
-        it.mappings("net.fabricmc:yarn:1.21.3+build.2:v2")
+        it.mappings("net.fabricmc:yarn:1.21.1+build.3:v2")
         it.mappings("dev.architectury:yarn-mappings-patch-neoforge:1.21+build.4")
     }
     neoForge "net.neoforged:neoforge:$project.neoforge_version"
