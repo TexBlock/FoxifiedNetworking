@@ -12,6 +12,7 @@ import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.payload.MinecraftRegisterPayload;
 import net.neoforged.neoforge.network.registration.NetworkRegistry;
 import org.sinytra.fabric.networking_api.NeoCommonNetworking;
 
@@ -57,7 +58,11 @@ public class NeoServerPlayNetworking {
     }
 
     public static void onClientReady(ServerPlayerEntity player) {
-        ServerPlayConnectionEvents.JOIN.invoker().onPlayReady(player.networkHandler, new NeoServerPacketSender(player.networkHandler.getConnection()), player.server);
+        NeoServerPacketSender packetSender = new NeoServerPacketSender(player.networkHandler.getConnection());
+        ServerPlayConnectionEvents.JOIN.invoker().onPlayReady(player.networkHandler, packetSender, player.server);
+
+        MinecraftRegisterPayload registerPacket = new MinecraftRegisterPayload(NeoCommonNetworking.PLAY_REGISTRY.getGlobalReceivers(NetworkSide.SERVERBOUND));
+        packetSender.sendPacket(registerPacket);
     }
 
     private record ServerNeoContextWrapper(IPayloadContext context) implements ServerPlayNetworking.Context {

@@ -23,12 +23,18 @@ import net.minecraft.client.network.ClientConnectionState;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
+import net.minecraft.util.Identifier;
+import net.neoforged.neoforge.network.registration.ChannelAttributes;
+import org.sinytra.fabric.networking_api.client.NeoClientCommonNetworking;
 import org.sinytra.fabric.networking_api.client.NeoClientPlayNetworking;
 import org.sinytra.fabric.networking_api.NeoListenableNetworkHandler;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.Set;
 
 // We want to apply a bit earlier than other mods which may not use us in order to prevent refCount issues
 @Mixin(value = ClientPlayNetworkHandler.class, priority = 999)
@@ -39,6 +45,9 @@ abstract class ClientPlayNetworkHandlerMixin extends ClientCommonNetworkHandler 
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void initAddon(CallbackInfo ci) {
+        Set<Identifier> channels = ChannelAttributes.getOrCreateCommonChannels(this.getConnection(), this.getPhase());
+        NeoClientCommonNetworking.onRegisterPacket((ClientPlayNetworkHandler) (Object) this, channels);
+
         NeoClientPlayNetworking.setTempPacketListener((ClientPlayNetworkHandler) (Object) this);
         ClientPlayConnectionEvents.INIT.invoker().onPlayInit((ClientPlayNetworkHandler) (Object) this, this.client);
     }
