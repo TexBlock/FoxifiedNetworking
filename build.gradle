@@ -1,5 +1,5 @@
 plugins {
-    id 'dev.architectury.loom' version '1.7-SNAPSHOT'
+    id 'dev.architectury.loom' version '1.9-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -33,10 +33,10 @@ loom {
 
 dependencies {
     minecraft "net.minecraft:minecraft:$project.minecraft_version"
-    mappings loom.layered {
-        it.mappings("net.fabricmc:yarn:1.21.3+build.2:v2")
-        it.mappings("dev.architectury:yarn-mappings-patch-neoforge:1.21+build.4")
-    }
+    mappings(loom.layered {
+        it.mappings("net.fabricmc:yarn:$project.yarn_mappings:v2")
+        it.mappings("dev.architectury:yarn-mappings-patch-neoforge:$project.yarn_patch")
+    })
     neoForge "net.neoforged:neoforge:$project.neoforge_version"
 }
 

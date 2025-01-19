@@ -13,7 +13,6 @@ import net.neoforged.neoforge.network.event.RegisterConfigurationTasksEvent;
 import org.sinytra.fabric.networking_api.server.NeoServerPlayNetworking;
 
 public class NetworkingEventHooks {
-
     public static void registerEvents(IEventBus bus) {
         bus.addListener(NetworkingEventHooks::onConfiguration);
         NeoForge.EVENT_BUS.addListener(NetworkingEventHooks::registerCommands);

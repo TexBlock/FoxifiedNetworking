@@ -59,14 +59,14 @@ public class NetworkRegistryMixin {
 
     @Inject(method = "handleModdedPayload(Lnet/minecraft/network/listener/ClientCommonPacketListener;Lnet/minecraft/network/packet/s2c/common/CustomPayloadS2CPacket;)V", at = @At(value = "INVOKE", target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;)V", ordinal = 1), cancellable = true)
     private static void preventDisconnectOnUnknownFabricPacketClient(ClientCommonPacketListener listener, CustomPayloadS2CPacket packet, CallbackInfo info) {
-        if (NeoNetworkRegistrar.hasCodecFor(listener.getPhase(), packet.getPacketId().side(), packet.payload().getId().id())) {
+        if (NeoNetworkRegistrar.hasCodecFor(listener.getPhase(), packet.getPacketType().side(), packet.payload().getId().id())) {
             info.cancel();
         }
     }
 
     @Inject(method = "handleModdedPayload(Lnet/minecraft/network/listener/ServerCommonPacketListener;Lnet/minecraft/network/packet/c2s/common/CustomPayloadC2SPacket;)V", at = @At(value = "INVOKE", target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;)V"), cancellable = true)
     private static void preventDisconnectOnUnknownFabricPacketServer(ServerCommonPacketListener listener, CustomPayloadC2SPacket packet, CallbackInfo info) {
-        if (NeoNetworkRegistrar.hasCodecFor(listener.getPhase(), packet.getPacketId().side(), packet.payload().getId().id())) {
+        if (NeoNetworkRegistrar.hasCodecFor(listener.getPhase(), packet.getPacketType().side(), packet.payload().getId().id())) {
             info.cancel();
         }
     }
