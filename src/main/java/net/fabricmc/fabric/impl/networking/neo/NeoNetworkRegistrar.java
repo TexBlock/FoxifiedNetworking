@@ -1,7 +1,7 @@
-package org.sinytra.fabric.networking_api;
+package net.fabricmc.fabric.impl.networking.neo;
 
 import net.fabricmc.fabric.impl.networking.PayloadTypeRegistryImpl;
-import net.fabricmc.fabric.mixin.networking.accessor.NetworkRegistryAccessor;
+import net.fabricmc.fabric.mixin.networking.accessor.neo.NetworkRegistryAccessor;
 import net.minecraft.network.NetworkPhase;
 import net.minecraft.network.NetworkSide;
 import net.minecraft.network.PacketByteBuf;

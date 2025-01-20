@@ -1,4 +1,4 @@
-package org.sinytra.fabric.networking_api.client;
+package net.fabricmc.fabric.impl.networking.client.neo;
 
 import net.fabricmc.fabric.api.client.networking.v1.C2SConfigurationChannelEvents;
 import net.fabricmc.fabric.api.client.networking.v1.C2SPlayChannelEvents;

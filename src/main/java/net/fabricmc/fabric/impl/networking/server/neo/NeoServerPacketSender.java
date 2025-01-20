@@ -1,7 +1,7 @@
-package org.sinytra.fabric.networking_api.client;
+package net.fabricmc.fabric.impl.networking.server.neo;
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.PacketCallbacks;
 import net.minecraft.network.packet.CustomPayload;
@@ -11,23 +11,23 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public record NeoClientPacketSender(ClientConnection connection) implements PacketSender {
+public record NeoServerPacketSender(ClientConnection connection) implements PacketSender {
     @Override
     public Packet<?> createPacket(CustomPayload packet) {
-        return ClientPlayNetworking.createC2SPacket(packet);
+        return ServerPlayNetworking.createS2CPacket(packet);
     }
 
     @Override
     public void sendPacket(Packet<?> packet, @Nullable PacketCallbacks callback) {
         Objects.requireNonNull(packet, "Packet cannot be null");
 
-        connection.send(packet, callback);
+        this.connection.send(packet, callback);
     }
 
     @Override
     public void disconnect(Text disconnectReason) {
         Objects.requireNonNull(disconnectReason, "Disconnect reason cannot be null");
 
-        connection.disconnect(disconnectReason);
+        this.connection.disconnect(disconnectReason);
     }
 }

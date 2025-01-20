@@ -1,4 +1,4 @@
-package net.fabricmc.fabric.mixin.networking;
+package net.fabricmc.fabric.mixin.networking.neo;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -20,7 +20,7 @@ import net.neoforged.neoforge.network.negotiation.NegotiatedNetworkComponent;
 import net.neoforged.neoforge.network.negotiation.NegotiationResult;
 import net.neoforged.neoforge.network.payload.ModdedNetworkQueryComponent;
 import net.neoforged.neoforge.network.registration.NetworkRegistry;
-import org.sinytra.fabric.networking_api.NeoNetworkRegistrar;
+import net.fabricmc.fabric.impl.networking.neo.NeoNetworkRegistrar;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

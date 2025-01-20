@@ -5,19 +5,29 @@
   "mixins": [
     "ClientConnectionMixin",
     "EntityTrackerEntryMixin",
-    "GenericPacketSplitterMixin",
+    "neo.GenericPacketSplitterMixin",
     "LoginQueryRequestS2CPacketMixin",
     "LoginQueryResponseC2SPacketMixin",
-    "NetworkRegistryMixin",
+    "neo.NetworkRegistryMixin",
     "ServerCommonNetworkHandlerMixin",
     "ServerConfigurationNetworkHandlerMixin",
     "ServerLoginNetworkHandlerMixin",
     "ServerPlayNetworkHandlerMixin",
     "accessor.EntityTrackerAccessor",
-    "accessor.NetworkRegistryAccessor",
+    "accessor.neo.NetworkRegistryAccessor",
     "accessor.ServerChunkLoadingManagerAccessor",
     "accessor.ServerCommonNetworkHandlerAccessor",
     "accessor.ServerLoginNetworkHandlerAccessor"
+  ],
+  "client": [
+    "client.accessor.ClientLoginNetworkHandlerAccessor",
+    "client.accessor.ConnectScreenAccessor",
+    "client.accessor.MinecraftClientAccessor",
+    "client.ClientCommonNetworkHandlerMixin",
+    "client.ClientConfigurationNetworkHandlerMixin",
+    "client.ClientLoginNetworkHandlerMixin",
+    "client.ClientPlayNetworkHandlerMixin",
+    "client.neo.NetworkRegistryClientMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -30,7 +30,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.thread.ThreadExecutor;
 import net.fabricmc.fabric.impl.networking.server.ServerNetworkingImpl;
 import net.fabricmc.fabric.mixin.networking.accessor.ServerCommonNetworkHandlerAccessor;
-import org.sinytra.fabric.networking_api.server.NeoServerConfigurationNetworking;
+import net.fabricmc.fabric.impl.networking.server.neo.NeoServerConfigurationNetworking;
 
 /**
  * Offers access to configuration stage server-side networking functionalities.

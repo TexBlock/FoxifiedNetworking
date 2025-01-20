@@ -17,7 +17,7 @@
 package net.fabricmc.fabric.mixin.networking;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.sinytra.fabric.networking_api.NeoListenableNetworkHandler;
+import net.fabricmc.fabric.impl.networking.neo.NeoNetworkHandlerExtensions;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -55,7 +55,7 @@ abstract class ClientConnectionMixin {
 		if (packetListener instanceof NetworkHandlerExtensions extension) {
 			extension.getAddon().handleDisconnect();
 		}
-		if (packetListener instanceof NeoListenableNetworkHandler handler) {
+		if (packetListener instanceof NeoNetworkHandlerExtensions handler) {
 			handler.handleDisconnect();
 		}
 	}
@@ -65,7 +65,7 @@ abstract class ClientConnectionMixin {
 		if (packetListener instanceof NetworkHandlerExtensions extension) {
 			extension.getAddon().handleDisconnect();
 		}
-		if (packetListener instanceof NeoListenableNetworkHandler handler) {
+		if (packetListener instanceof NeoNetworkHandlerExtensions handler) {
 			handler.handleDisconnect();
 		}
 	}

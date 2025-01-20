@@ -1,4 +1,4 @@
-package net.fabricmc.fabric.mixin.networking;
+package net.fabricmc.fabric.mixin.networking.neo;
 
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.network.NetworkSide;
@@ -8,7 +8,7 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.neoforged.neoforge.network.filters.GenericPacketSplitter;
-import org.sinytra.fabric.networking_api.NeoNetworkRegistrar;
+import net.fabricmc.fabric.impl.networking.neo.NeoNetworkRegistrar;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
