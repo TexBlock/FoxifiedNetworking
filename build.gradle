@@ -44,8 +44,6 @@ dependencies {
         it.mappings("dev.architectury:yarn-mappings-patch-neoforge:$project.yarn_patch")
     }
     neoForge "net.neoforged:neoforge:$project.neoforge_version"
-    modImplementation(include("org.sinytra:forgified-fabric-loader:2.5.34+0.16.0+1.21.1"))
-    modImplementation(include("org.sinytra.forgified-fabric-api:fabric-api-base:0.4.42+d1308ded19"))
 }
 
 processResources {
