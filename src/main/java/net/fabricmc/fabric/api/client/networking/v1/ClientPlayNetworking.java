@@ -31,7 +31,7 @@ import net.minecraft.network.listener.ServerCommonPacketListener;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.util.Identifier;
-import org.sinytra.fabric.networking_api.client.NeoClientPlayNetworking;
+import net.fabricmc.fabric.impl.networking.client.neo.NeoClientPlayNetworking;
 
 /**
  * Offers access to play stage client-side networking functionalities.

@@ -1,4 +1,4 @@
-package net.fabricmc.fabric.mixin.networking;
+package net.fabricmc.fabric.mixin.networking.neo;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -20,7 +20,7 @@ import net.neoforged.neoforge.network.negotiation.NegotiatedNetworkComponent;
 import net.neoforged.neoforge.network.negotiation.NegotiationResult;
 import net.neoforged.neoforge.network.payload.ModdedNetworkQueryComponent;
 import net.neoforged.neoforge.network.registration.NetworkRegistry;
-import org.sinytra.fabric.networking_api.NeoNetworkRegistrar;
+import net.fabricmc.fabric.impl.networking.neo.NeoNetworkRegistrar;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -37,8 +37,8 @@ import java.util.Set;
 public class NetworkRegistryMixin {
 
     @Inject(method = "getCodec", at = @At(value = "INVOKE", target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;)V", ordinal = 0), cancellable = true)
-    private static void getCodec(Identifier id, NetworkPhase protocol, NetworkSide flow, CallbackInfoReturnable<PacketCodec<? super PacketByteBuf, ? extends CustomPayload>> cir) {
-        PayloadTypeRegistryImpl<? extends PacketByteBuf> registry = NeoNetworkRegistrar.getPayloadRegistry(protocol, flow);
+    private static void getCodec(Identifier id, NetworkPhase phase, NetworkSide side, CallbackInfoReturnable<PacketCodec<? super PacketByteBuf, ? extends CustomPayload>> cir) {
+        PayloadTypeRegistryImpl<? extends PacketByteBuf> registry = NeoNetworkRegistrar.getPayloadRegistry(phase, side);
         CustomPayload.Type<? extends PacketByteBuf, ? extends CustomPayload> fabricCodec = registry.get(id);
         if (fabricCodec != null) {
             cir.setReturnValue((PacketCodec) fabricCodec.codec());
@@ -46,9 +46,9 @@ public class NetworkRegistryMixin {
     }
 
     @ModifyReturnValue(method = "getCodec", at = @At(value = "RETURN", ordinal = 3))
-    private static PacketCodec<? super PacketByteBuf, ? extends CustomPayload> getFabricDynamicCodec(PacketCodec<? super PacketByteBuf, ? extends CustomPayload> codec, Identifier id, NetworkPhase protocol, NetworkSide flow) {
+    private static PacketCodec<? super PacketByteBuf, ? extends CustomPayload> getFabricDynamicCodec(PacketCodec<? super PacketByteBuf, ? extends CustomPayload> codec, Identifier id, NetworkPhase phase, NetworkSide side) {
         if (codec == NeoNetworkRegistrar.DUMMY_CODEC) {
-            PayloadTypeRegistryImpl<? extends PacketByteBuf> registry = NeoNetworkRegistrar.getPayloadRegistry(protocol, flow);
+            PayloadTypeRegistryImpl<? extends PacketByteBuf> registry = NeoNetworkRegistrar.getPayloadRegistry(phase, side);
             CustomPayload.Type<? extends PacketByteBuf, ? extends CustomPayload> fabricCodec = registry.get(id);
             if (fabricCodec != null) {
                 return (PacketCodec) fabricCodec.codec();

@@ -1,4 +1,4 @@
-package net.fabricmc.fabric.mixin.networking.accessor;
+package net.fabricmc.fabric.mixin.networking.accessor.neo;
 
 import net.minecraft.network.NetworkPhase;
 import net.minecraft.util.Identifier;

@@ -1,4 +1,4 @@
-package org.sinytra.fabric.networking_api.client;
+package net.fabricmc.fabric.impl.networking.client.neo;
 
 import com.mojang.logging.LogUtils;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -16,7 +16,7 @@ import net.neoforged.neoforge.common.extensions.ICommonPacketListener;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.NetworkRegistry;
 import org.jetbrains.annotations.Nullable;
-import org.sinytra.fabric.networking_api.NeoCommonNetworking;
+import net.fabricmc.fabric.impl.networking.neo.NeoNetworkingImpl;
 import org.slf4j.Logger;
 
 import java.util.Objects;
@@ -28,45 +28,45 @@ public class NeoClientPlayNetworking {
     private static ICommonPacketListener tempPacketListener;
 
     public static <T extends CustomPayload> boolean registerGlobalReceiver(CustomPayload.Id<T> type, ClientPlayNetworking.PlayPayloadHandler<T> handler) {
-        NeoCommonNetworking.assertPayloadType(PayloadTypeRegistryImpl.PLAY_S2C, type.id(), NetworkSide.CLIENTBOUND, NetworkPhase.PLAY);
-        return NeoCommonNetworking.PLAY_REGISTRY.registerGlobalReceiver(type, NetworkSide.CLIENTBOUND, handler, ClientNeoContextWrapper::new, ClientPlayNetworking.PlayPayloadHandler::receive);
+        NeoNetworkingImpl.assertPayloadType(PayloadTypeRegistryImpl.PLAY_S2C, type.id(), NetworkSide.CLIENTBOUND, NetworkPhase.PLAY);
+        return NeoNetworkingImpl.PLAY_REGISTRY.registerGlobalReceiver(type, NetworkSide.CLIENTBOUND, handler, ClientNeoContextWrapper::new, ClientPlayNetworking.PlayPayloadHandler::receive);
     }
 
     public static ClientPlayNetworking.PlayPayloadHandler<?> unregisterGlobalReceiver(Identifier id) {
-        return NeoCommonNetworking.PLAY_REGISTRY.unregisterGlobalReceiver(id, NetworkSide.CLIENTBOUND);
+        return NeoNetworkingImpl.PLAY_REGISTRY.unregisterGlobalReceiver(id, NetworkSide.CLIENTBOUND);
     }
 
     public static Set<Identifier> getGlobalReceivers() {
-        return NeoCommonNetworking.PLAY_REGISTRY.getGlobalReceivers(NetworkSide.CLIENTBOUND);
+        return NeoNetworkingImpl.PLAY_REGISTRY.getGlobalReceivers(NetworkSide.CLIENTBOUND);
     }
 
     public static <T extends CustomPayload> boolean registerReceiver(CustomPayload.Id<T> type, ClientPlayNetworking.PlayPayloadHandler<T> handler) {
-        NeoCommonNetworking.assertPayloadType(PayloadTypeRegistryImpl.PLAY_S2C, type.id(), NetworkSide.CLIENTBOUND, NetworkPhase.PLAY);
+        NeoNetworkingImpl.assertPayloadType(PayloadTypeRegistryImpl.PLAY_S2C, type.id(), NetworkSide.CLIENTBOUND, NetworkPhase.PLAY);
         ICommonPacketListener listener = Objects.requireNonNull(getClientListener(), "Cannot register receiver while not in game!");
-        return NeoCommonNetworking.PLAY_REGISTRY.registerLocalReceiver(type, listener, handler, ClientNeoContextWrapper::new, ClientPlayNetworking.PlayPayloadHandler::receive);
+        return NeoNetworkingImpl.PLAY_REGISTRY.registerLocalReceiver(type, listener, handler, ClientNeoContextWrapper::new, ClientPlayNetworking.PlayPayloadHandler::receive);
     }
 
     public static ClientPlayNetworking.PlayPayloadHandler<?> unregisterReceiver(Identifier id) {
         ICommonPacketListener listener = Objects.requireNonNull(getClientListener(), "Cannot unregister receiver while not in game!");
-        return NeoCommonNetworking.PLAY_REGISTRY.unregisterLocalReceiver(id, listener);
+        return NeoNetworkingImpl.PLAY_REGISTRY.unregisterLocalReceiver(id, listener);
     }
 
     public static Set<Identifier> getReceived() throws IllegalStateException {
         ICommonPacketListener listener = Objects.requireNonNull(getClientListener(), "Cannot get a list of channels the client can receive packets on while not in game!");
-        return NeoCommonNetworking.PLAY_REGISTRY.getLocalReceivers(listener);
+        return NeoNetworkingImpl.PLAY_REGISTRY.getLocalReceivers(listener);
     }
 
     public static Set<Identifier> getSendable() throws IllegalStateException {
         ICommonPacketListener listener = Objects.requireNonNull(getClientListener(), "Cannot get a list of channels the server can receive packets on while not in game!");
-        return NeoCommonNetworking.PLAY_REGISTRY.getLocalSendable(listener);
+        return NeoNetworkingImpl.PLAY_REGISTRY.getLocalSendable(listener);
     }
 
     public static boolean canSend(Identifier channelName) throws IllegalArgumentException {
-        return NetworkRegistry.hasChannel(MinecraftClient.getInstance().getNetworkHandler(), channelName);
+        return NetworkRegistry.hasChannel(Objects.requireNonNull(MinecraftClient.getInstance().getNetworkHandler()), channelName);
     }
 
     public static PacketSender getSender() {
-        return new NeoClientPacketSender(MinecraftClient.getInstance().getNetworkHandler().getConnection());
+        return new NeoClientPacketSender(Objects.requireNonNull(MinecraftClient.getInstance().getNetworkHandler()).getConnection());
     }
 
     public static void onServerReady(ClientPlayNetworkHandler handler, MinecraftClient client) {

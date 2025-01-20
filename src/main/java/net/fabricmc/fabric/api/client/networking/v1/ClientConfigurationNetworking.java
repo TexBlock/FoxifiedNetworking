@@ -28,7 +28,7 @@ import net.minecraft.network.NetworkPhase;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.thread.ThreadExecutor;
-import org.sinytra.fabric.networking_api.client.NeoClientConfigurationNetworking;
+import net.fabricmc.fabric.impl.networking.client.neo.NeoClientConfigurationNetworking;
 
 /**
  * Offers access to configuration stage client-side networking functionalities.

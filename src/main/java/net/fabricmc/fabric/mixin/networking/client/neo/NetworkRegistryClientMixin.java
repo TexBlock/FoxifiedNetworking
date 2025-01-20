@@ -1,4 +1,4 @@
-package net.fabricmc.fabric.mixin.networking.client;
+package net.fabricmc.fabric.mixin.networking.client.neo;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationConnectionEvents;
 import net.minecraft.client.MinecraftClient;

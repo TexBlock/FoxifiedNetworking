@@ -23,8 +23,8 @@ import net.minecraft.client.network.ClientConfigurationNetworkHandler;
 import net.minecraft.client.network.ClientConnectionState;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.s2c.config.ReadyS2CPacket;
-import org.sinytra.fabric.networking_api.NeoListenableNetworkHandler;
-import org.sinytra.fabric.networking_api.client.NeoClientConfigurationNetworking;
+import net.fabricmc.fabric.impl.networking.neo.NeoNetworkHandlerExtensions;
+import net.fabricmc.fabric.impl.networking.client.neo.NeoClientConfigurationNetworking;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -32,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 // We want to apply a bit earlier than other mods which may not use us in order to prevent refCount issues
 @Mixin(value = ClientConfigurationNetworkHandler.class, priority = 999)
-public abstract class ClientConfigurationNetworkHandlerMixin extends ClientCommonNetworkHandler implements NeoListenableNetworkHandler {
+public abstract class ClientConfigurationNetworkHandlerMixin extends ClientCommonNetworkHandler implements NeoNetworkHandlerExtensions {
 	protected ClientConfigurationNetworkHandlerMixin(MinecraftClient client, ClientConnection connection, ClientConnectionState connectionState) {
 		super(client, connection, connectionState);
 	}

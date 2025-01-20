@@ -7,16 +7,27 @@
     "EntityTrackerEntryMixin",
     "LoginQueryRequestS2CPacketMixin",
     "LoginQueryResponseC2SPacketMixin",
+    "ServerCommonNetworkHandlerMixin",
     "ServerConfigurationNetworkHandlerMixin",
     "ServerLoginNetworkHandlerMixin",
     "ServerPlayNetworkHandlerMixin",
-    "NetworkRegistryMixin",
-    "ServerCommonNetworkHandlerMixin",
     "accessor.EntityTrackerAccessor",
+    "accessor.neo.NetworkRegistryAccessor",
+    "accessor.ServerChunkLoadingManagerAccessor",
     "accessor.ServerCommonNetworkHandlerAccessor",
     "accessor.ServerLoginNetworkHandlerAccessor",
-    "accessor.ServerChunkLoadingManagerAccessor",
-    "accessor.NetworkRegistryAccessor"
+    "neo.GenericPacketSplitterMixin",
+    "neo.NetworkRegistryMixin"
+  ],
+  "client": [
+    "client.accessor.ClientLoginNetworkHandlerAccessor",
+    "client.accessor.ConnectScreenAccessor",
+    "client.accessor.MinecraftClientAccessor",
+    "client.ClientCommonNetworkHandlerMixin",
+    "client.ClientConfigurationNetworkHandlerMixin",
+    "client.ClientLoginNetworkHandlerMixin",
+    "client.ClientPlayNetworkHandlerMixin",
+    "client.neo.NetworkRegistryClientMixin"
   ],
   "injectors": {
     "defaultRequire": 1

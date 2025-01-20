@@ -22,7 +22,7 @@ import net.minecraft.network.ClientConnection;
 import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.util.Identifier;
 import net.neoforged.neoforge.common.extensions.ICommonPacketListener;
-import org.sinytra.fabric.networking_api.server.NeoServerCommonNetworking;
+import net.fabricmc.fabric.impl.networking.server.neo.NeoServerCommonNetworking;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 

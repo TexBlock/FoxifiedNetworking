@@ -1,4 +1,4 @@
-package org.sinytra.fabric.networking_api.client;
+package net.fabricmc.fabric.impl.networking.client.neo;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
@@ -10,7 +10,7 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 import net.neoforged.neoforge.common.extensions.ICommonPacketListener;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-import org.sinytra.fabric.networking_api.NeoCommonNetworking;
+import net.fabricmc.fabric.impl.networking.neo.NeoNetworkingImpl;
 
 import java.util.Objects;
 import java.util.Set;
@@ -19,42 +19,42 @@ public class NeoClientConfigurationNetworking {
     private static ICommonPacketListener configurationPacketListener;
 
     public static <T extends CustomPayload> boolean registerGlobalReceiver(CustomPayload.Id<T> type, ClientConfigurationNetworking.ConfigurationPayloadHandler<T> handler) {
-        NeoCommonNetworking.assertPayloadType(PayloadTypeRegistryImpl.CONFIGURATION_S2C, type.id(), NetworkSide.CLIENTBOUND, NetworkPhase.CONFIGURATION);
-        return NeoCommonNetworking.CONFIGURATION_REGISTRY.registerGlobalReceiver(type, NetworkSide.CLIENTBOUND, handler, ClientConfigNeoContextWrapper::new, ClientConfigurationNetworking.ConfigurationPayloadHandler::receive);
+        NeoNetworkingImpl.assertPayloadType(PayloadTypeRegistryImpl.CONFIGURATION_S2C, type.id(), NetworkSide.CLIENTBOUND, NetworkPhase.CONFIGURATION);
+        return NeoNetworkingImpl.CONFIGURATION_REGISTRY.registerGlobalReceiver(type, NetworkSide.CLIENTBOUND, handler, ClientConfigNeoContextWrapper::new, ClientConfigurationNetworking.ConfigurationPayloadHandler::receive);
     }
 
     public static ClientConfigurationNetworking.ConfigurationPayloadHandler<?> unregisterGlobalReceiver(Identifier id) {
-        return NeoCommonNetworking.CONFIGURATION_REGISTRY.unregisterGlobalReceiver(id, NetworkSide.CLIENTBOUND);
+        return NeoNetworkingImpl.CONFIGURATION_REGISTRY.unregisterGlobalReceiver(id, NetworkSide.CLIENTBOUND);
     }
 
     public static Set<Identifier> getGlobalReceivers() {
-        return NeoCommonNetworking.CONFIGURATION_REGISTRY.getGlobalReceivers(NetworkSide.CLIENTBOUND);
+        return NeoNetworkingImpl.CONFIGURATION_REGISTRY.getGlobalReceivers(NetworkSide.CLIENTBOUND);
     }
 
     public static <T extends CustomPayload> boolean registerReceiver(CustomPayload.Id<T> type, ClientConfigurationNetworking.ConfigurationPayloadHandler<T> handler) {
-        NeoCommonNetworking.assertPayloadType(PayloadTypeRegistryImpl.CONFIGURATION_S2C, type.id(), NetworkSide.CLIENTBOUND, NetworkPhase.CONFIGURATION);
+        NeoNetworkingImpl.assertPayloadType(PayloadTypeRegistryImpl.CONFIGURATION_S2C, type.id(), NetworkSide.CLIENTBOUND, NetworkPhase.CONFIGURATION);
         ICommonPacketListener listener = Objects.requireNonNull(configurationPacketListener, "Cannot register receiver while not configuring!");
-        return NeoCommonNetworking.CONFIGURATION_REGISTRY.registerLocalReceiver(type, listener, handler, ClientConfigNeoContextWrapper::new, ClientConfigurationNetworking.ConfigurationPayloadHandler::receive);
+        return NeoNetworkingImpl.CONFIGURATION_REGISTRY.registerLocalReceiver(type, listener, handler, ClientConfigNeoContextWrapper::new, ClientConfigurationNetworking.ConfigurationPayloadHandler::receive);
     }
 
     public static ClientConfigurationNetworking.ConfigurationPayloadHandler<?> unregisterReceiver(Identifier id) {
         ICommonPacketListener listener = Objects.requireNonNull(configurationPacketListener, "Cannot unregister receiver while not configuring!");
-        return NeoCommonNetworking.CONFIGURATION_REGISTRY.unregisterLocalReceiver(id, listener);
+        return NeoNetworkingImpl.CONFIGURATION_REGISTRY.unregisterLocalReceiver(id, listener);
     }
 
     public static Set<Identifier> getReceived() throws IllegalStateException {
         ICommonPacketListener listener = Objects.requireNonNull(configurationPacketListener, "Cannot get a list of channels the client can receive packets on while not configuring!");
-        return NeoCommonNetworking.CONFIGURATION_REGISTRY.getLocalReceivers(listener);
+        return NeoNetworkingImpl.CONFIGURATION_REGISTRY.getLocalReceivers(listener);
     }
 
     public static Set<Identifier> getSendable() throws IllegalStateException {
         ICommonPacketListener listener = Objects.requireNonNull(configurationPacketListener, "Cannot get a list of channels the server can receive packets on while not configuring!");
-        return NeoCommonNetworking.CONFIGURATION_REGISTRY.getLocalSendable(listener);
+        return NeoNetworkingImpl.CONFIGURATION_REGISTRY.getLocalSendable(listener);
     }
 
     public static boolean canSend(Identifier channelName) throws IllegalArgumentException {
 //        ICommonPacketListener listener = Objects.requireNonNull(configurationPacketListener, "Cannot get a list of channels the server can receive packets on while not configuring!");
-        return NeoCommonNetworking.CONFIGURATION_REGISTRY.getGlobalReceivers(NetworkSide.SERVERBOUND).contains(channelName);
+        return NeoNetworkingImpl.CONFIGURATION_REGISTRY.getGlobalReceivers(NetworkSide.SERVERBOUND).contains(channelName);
     }
 
     public static PacketSender getSender() {
