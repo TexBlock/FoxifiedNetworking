@@ -40,8 +40,8 @@ loom {
 dependencies {
     minecraft "net.minecraft:minecraft:$project.minecraft_version"
     mappings loom.layered {
-        it.mappings("net.fabricmc:yarn:1.21.3+build.2:v2")
-        it.mappings("dev.architectury:yarn-mappings-patch-neoforge:1.21+build.4")
+        it.mappings("net.fabricmc:yarn:$project.yarn_mappings:v2")
+        it.mappings("dev.architectury:yarn-mappings-patch-neoforge:$project.yarn_patch")
     }
     neoForge "net.neoforged:neoforge:$project.neoforge_version"
     modImplementation(include("org.sinytra:forgified-fabric-loader:2.5.34+0.16.0+1.21.1"))
