@@ -7,8 +7,11 @@ license = "Apache-2.0"
 modId = "foxified_networking"
 version = "${version}"
 displayName = "Foxified Networking API"
+displayURL = "https://github.com/TexBlock/FoxifiedNetworking"
+credits = "FabricMC, Sinytra"
 authors = "TexTrue"
 description = '''
+Fabric Networking API port and Forgified Fabric API networking module fork.
 Low-level, vanilla protocol oriented networking hooks.
 '''
 logoFile = "icon.png"
