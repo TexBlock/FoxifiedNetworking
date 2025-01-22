@@ -29,52 +29,52 @@ public class NeoNetworkRegistrar {
         throw new UnsupportedOperationException();
     });
 
-    private final NetworkPhase protocol;
+    private final NetworkPhase phase;
 
     private final Map<Identifier, NeoPayloadHandler<?>> registeredPayloads = new HashMap<>();
 
-    public NeoNetworkRegistrar(NetworkPhase protocol) {
-        this.protocol = protocol;
+    public NeoNetworkRegistrar(NetworkPhase phase) {
+        this.phase = phase;
     }
 
-    public static boolean hasCodecFor(NetworkPhase protocol, NetworkSide flow, Identifier id) {
-        PayloadTypeRegistryImpl<? extends PacketByteBuf> registry = getPayloadRegistry(protocol, flow);
+    public static boolean hasCodecFor(NetworkPhase phase, NetworkSide side, Identifier id) {
+        PayloadTypeRegistryImpl<? extends PacketByteBuf> registry = getPayloadRegistry(phase, side);
         return registry.get(id) != null;
     }
 
-    public static PayloadTypeRegistryImpl<? extends PacketByteBuf> getPayloadRegistry(NetworkPhase protocol, NetworkSide flow) {
-        if (protocol == NetworkPhase.PLAY) {
+    public static PayloadTypeRegistryImpl<? extends PacketByteBuf> getPayloadRegistry(NetworkPhase phase, NetworkSide flow) {
+        if (phase == NetworkPhase.PLAY) {
             return flow == NetworkSide.SERVERBOUND ? PayloadTypeRegistryImpl.PLAY_C2S : PayloadTypeRegistryImpl.PLAY_S2C;
-        } else if (protocol == NetworkPhase.CONFIGURATION) {
+        } else if (phase == NetworkPhase.CONFIGURATION) {
             return flow == NetworkSide.SERVERBOUND ? PayloadTypeRegistryImpl.CONFIGURATION_C2S : PayloadTypeRegistryImpl.CONFIGURATION_S2C;
         } else {
             throw new UnsupportedOperationException();
         }
     }
 
-    public <PAYLOAD extends CustomPayload, CONTEXT, HANDLER> boolean registerGlobalReceiver(CustomPayload.Id<PAYLOAD> type, NetworkSide packetFlow, HANDLER handler, Function<IPayloadContext, CONTEXT> ctxFactory, TriConsumer<HANDLER, PAYLOAD, CONTEXT> consumer) {
-        NeoPayloadHandler<PAYLOAD> neoHandler = getOrRegisterNativeHandler(type);
-        return neoHandler.registerGlobalHandler(packetFlow, handler, ctxFactory, consumer);
+    public <P extends CustomPayload, C, H> boolean registerGlobalReceiver(CustomPayload.Id<P> type, NetworkSide side, H handler, Function<IPayloadContext, C> ctxFactory, TriConsumer<H, P, C> consumer) {
+        NeoPayloadHandler<P> neoHandler = getOrRegisterNativeHandler(type);
+        return neoHandler.registerGlobalHandler(side, handler, ctxFactory, consumer);
     }
 
-    public <HANDLER> HANDLER unregisterGlobalReceiver(Identifier id, NetworkSide flow) {
+    public <H> H unregisterGlobalReceiver(Identifier id, NetworkSide side) {
         NeoPayloadHandler<?> neoHandler = registeredPayloads.get(id);
-        return neoHandler != null ? neoHandler.unregisterGlobalHandler(flow) : null;
+        return neoHandler != null ? neoHandler.unregisterGlobalHandler(side) : null;
     }
 
-    public Set<Identifier> getGlobalReceivers(NetworkSide flow) {
+    public Set<Identifier> getGlobalReceivers(NetworkSide side) {
         return registeredPayloads.entrySet().stream()
-            .filter(e -> e.getValue().hasGlobalHandler(flow))
+            .filter(e -> e.getValue().hasGlobalHandler(side))
             .map(Map.Entry::getKey)
             .collect(Collectors.toSet());
     }
 
-    public <PAYLOAD extends CustomPayload, CONTEXT, HANDLER> boolean registerLocalReceiver(CustomPayload.Id<PAYLOAD> type, ICommonPacketListener listener, HANDLER handler, Function<IPayloadContext, CONTEXT> ctxFactory, TriConsumer<HANDLER, PAYLOAD, CONTEXT> consumer) {
-        NeoPayloadHandler<PAYLOAD> neoHandler = getOrRegisterNativeHandler(type);
+    public <P extends CustomPayload, C, H> boolean registerLocalReceiver(CustomPayload.Id<P> type, ICommonPacketListener listener, H handler, Function<IPayloadContext, C> ctxFactory, TriConsumer<H, P, C> consumer) {
+        NeoPayloadHandler<P> neoHandler = getOrRegisterNativeHandler(type);
         return neoHandler.registerLocalReceiver(listener, handler, ctxFactory, consumer);
     }
 
-    public <HANDLER> HANDLER unregisterLocalReceiver(Identifier id, ICommonPacketListener listener) {
+    public <H> H unregisterLocalReceiver(Identifier id, ICommonPacketListener listener) {
         NeoPayloadHandler<?> neoHandler = registeredPayloads.get(id);
         return neoHandler != null ? neoHandler.unregisterLocalHandler(listener) : null;
     }
@@ -91,17 +91,17 @@ public class NeoNetworkRegistrar {
         if (payloadSetup == null) {
             return Set.of();
         }
-        return payloadSetup.channels().get(this.protocol).keySet();
+        return payloadSetup.channels().get(this.phase).keySet();
     }
 
     @SuppressWarnings("unchecked")
-    private <PAYLOAD extends CustomPayload> NeoPayloadHandler<PAYLOAD> getOrRegisterNativeHandler(CustomPayload.Id<PAYLOAD> type) {
-        return (NeoPayloadHandler<PAYLOAD>) registeredPayloads.computeIfAbsent(type.id(), k -> {
-            NeoPayloadHandler<PAYLOAD> handler = new NeoPayloadHandler<>();
+    private <P extends CustomPayload> NeoPayloadHandler<P> getOrRegisterNativeHandler(CustomPayload.Id<P> type) {
+        return (NeoPayloadHandler<P>) registeredPayloads.computeIfAbsent(type.id(), k -> {
+            NeoPayloadHandler<P> handler = new NeoPayloadHandler<>();
             boolean setup = NetworkRegistryAccessor.getSetup();
 
             NetworkRegistryAccessor.setSetup(false);
-            NetworkRegistry.register(type, (PacketCodec<? super PacketByteBuf, PAYLOAD>) DUMMY_CODEC, handler, List.of(protocol), Optional.empty(), "1.0", true);
+            NetworkRegistry.register(type, (PacketCodec<? super PacketByteBuf, P>) DUMMY_CODEC, handler, List.of(phase), Optional.empty(), "1.0", true);
             NetworkRegistryAccessor.setSetup(setup);
 
             // TODO Send registration message when registering late
@@ -109,12 +109,12 @@ public class NeoNetworkRegistrar {
         });
     }
 
-    public static class NeoPayloadHandler<PAYLOAD extends CustomPayload> implements IPayloadHandler<PAYLOAD> {
-        private final Map<NetworkSide, NeoSubHandler<PAYLOAD, ?, ?>> globalReceivers = new HashMap<>();
-        private final Map<ICommonPacketListener, NeoSubHandler<PAYLOAD, ?, ?>> localReceivers = new HashMap<>();
+    public static class NeoPayloadHandler<P extends CustomPayload> implements IPayloadHandler<P> {
+        private final Map<NetworkSide, NeoSubHandler<P, ?, ?>> globalReceivers = new HashMap<>();
+        private final Map<ICommonPacketListener, NeoSubHandler<P, ?, ?>> localReceivers = new HashMap<>();
 
         @Override
-        public void handle(PAYLOAD arg, IPayloadContext context) {
+        public void handle(P arg, IPayloadContext context) {
             NeoSubHandler globalHandler = globalReceivers.get(context.flow());
             if (globalHandler != null) {
                 context.enqueueWork(() -> globalHandler.consumer().accept(globalHandler.handler(), arg, globalHandler.ctxFactory().apply(context)));
@@ -125,13 +125,13 @@ public class NeoNetworkRegistrar {
             }
         }
 
-        public boolean hasGlobalHandler(NetworkSide flow) {
-            return globalReceivers.containsKey(flow);
+        public boolean hasGlobalHandler(NetworkSide side) {
+            return globalReceivers.containsKey(side);
         }
 
-        public <CONTEXT, HANDLER> boolean registerGlobalHandler(NetworkSide flow, HANDLER original, Function<IPayloadContext, CONTEXT> ctxFactory, TriConsumer<HANDLER, PAYLOAD, CONTEXT> consumer) {
-            if (!hasGlobalHandler(flow)) {
-                globalReceivers.put(flow, new NeoSubHandler<>(original, ctxFactory, consumer));
+        public <C, H> boolean registerGlobalHandler(NetworkSide side, H original, Function<IPayloadContext, C> ctxFactory, TriConsumer<H, P, C> consumer) {
+            if (!hasGlobalHandler(side)) {
+                globalReceivers.put(side, new NeoSubHandler<>(original, ctxFactory, consumer));
                 return true;
             }
             return false;
@@ -141,7 +141,7 @@ public class NeoNetworkRegistrar {
             return localReceivers.containsKey(listener);
         }
 
-        public <CONTEXT, HANDLER> boolean registerLocalReceiver(ICommonPacketListener listener, HANDLER original, Function<IPayloadContext, CONTEXT> ctxFactory, TriConsumer<HANDLER, PAYLOAD, CONTEXT> consumer) {
+        public <C, H> boolean registerLocalReceiver(ICommonPacketListener listener, H original, Function<IPayloadContext, C> ctxFactory, TriConsumer<H, P, C> consumer) {
             if (!hasLocalHandler(listener)) {
                 localReceivers.put(listener, new NeoSubHandler<>(original, ctxFactory, consumer));
                 return true;
@@ -150,17 +150,17 @@ public class NeoNetworkRegistrar {
         }
 
         @Nullable
-        public <HANDLER> HANDLER unregisterGlobalHandler(NetworkSide flow) {
-            NeoSubHandler subHandler = globalReceivers.remove(flow);
-            return subHandler != null ? (HANDLER) subHandler.handler() : null;
+        public <H> H unregisterGlobalHandler(NetworkSide side) {
+            NeoSubHandler subHandler = globalReceivers.remove(side);
+            return subHandler != null ? (H) subHandler.handler() : null;
         }
 
         @Nullable
-        public <HANDLER> HANDLER unregisterLocalHandler(ICommonPacketListener listener) {
+        public <H> H unregisterLocalHandler(ICommonPacketListener listener) {
             NeoSubHandler subHandler = localReceivers.remove(listener);
-            return subHandler != null ? (HANDLER) subHandler.handler() : null;
+            return subHandler != null ? (H) subHandler.handler() : null;
         }
     }
 
-    record NeoSubHandler<PAYLOAD extends CustomPayload, CONTEXT, HANDLER>(HANDLER handler, Function<IPayloadContext, CONTEXT> ctxFactory, TriConsumer<HANDLER, PAYLOAD, CONTEXT> consumer) { }
+    record NeoSubHandler<P extends CustomPayload, C, H>(H handler, Function<IPayloadContext, C> ctxFactory, TriConsumer<H, P, C> consumer) { }
 }

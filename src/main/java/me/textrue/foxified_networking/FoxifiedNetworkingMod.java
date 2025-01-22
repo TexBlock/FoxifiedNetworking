@@ -1,4 +1,4 @@
-package org.thinkingstudio.foxified_networking;
+package me.textrue.foxified_networking;
 
 import net.fabricmc.fabric.impl.networking.neo.NeoNetworkingImpl;
 import net.neoforged.bus.api.IEventBus;
