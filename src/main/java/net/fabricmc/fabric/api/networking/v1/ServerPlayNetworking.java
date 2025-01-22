@@ -29,7 +29,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import org.sinytra.fabric.networking_api.server.NeoServerPlayNetworking;
+import net.fabricmc.fabric.impl.networking.server.neo.NeoServerPlayNetworking;
 
 /**
  * Offers access to play stage server-side networking functionalities.

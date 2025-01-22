@@ -1,4 +1,4 @@
-package org.sinytra.fabric.networking_api.server;
+package net.fabricmc.fabric.impl.networking.server.neo;
 
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerConfigurationNetworking;
@@ -11,40 +11,40 @@ import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.util.Identifier;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.NetworkRegistry;
-import org.sinytra.fabric.networking_api.NeoCommonNetworking;
+import net.fabricmc.fabric.impl.networking.neo.NeoNetworkingImpl;
 
 import java.util.Set;
 
 public class NeoServerConfigurationNetworking {
 
     public static <T extends CustomPayload> boolean registerGlobalReceiver(CustomPayload.Id<T> type, ServerConfigurationNetworking.ConfigurationPacketHandler<T> handler) {
-        NeoCommonNetworking.assertPayloadType(PayloadTypeRegistryImpl.CONFIGURATION_C2S, type.id(), NetworkSide.SERVERBOUND, NetworkPhase.CONFIGURATION);
-        return NeoCommonNetworking.CONFIGURATION_REGISTRY.registerGlobalReceiver(type, NetworkSide.SERVERBOUND, handler, ServerConfigNeoContextWrapper::new, ServerConfigurationNetworking.ConfigurationPacketHandler::receive);
+        NeoNetworkingImpl.assertPayloadType(PayloadTypeRegistryImpl.CONFIGURATION_C2S, type.id(), NetworkSide.SERVERBOUND, NetworkPhase.CONFIGURATION);
+        return NeoNetworkingImpl.CONFIGURATION_REGISTRY.registerGlobalReceiver(type, NetworkSide.SERVERBOUND, handler, ServerConfigNeoContextWrapper::new, ServerConfigurationNetworking.ConfigurationPacketHandler::receive);
     }
 
     public static ServerConfigurationNetworking.ConfigurationPacketHandler<?> unregisterGlobalReceiver(Identifier id) {
-        return NeoCommonNetworking.CONFIGURATION_REGISTRY.unregisterGlobalReceiver(id, NetworkSide.SERVERBOUND);
+        return NeoNetworkingImpl.CONFIGURATION_REGISTRY.unregisterGlobalReceiver(id, NetworkSide.SERVERBOUND);
     }
 
     public static Set<Identifier> getGlobalReceivers() {
-        return NeoCommonNetworking.CONFIGURATION_REGISTRY.getGlobalReceivers(NetworkSide.SERVERBOUND);
+        return NeoNetworkingImpl.CONFIGURATION_REGISTRY.getGlobalReceivers(NetworkSide.SERVERBOUND);
     }
 
     public static <T extends CustomPayload> boolean registerReceiver(ServerConfigurationNetworkHandler networkHandler, CustomPayload.Id<T> type, ServerConfigurationNetworking.ConfigurationPacketHandler<T> handler) {
-        NeoCommonNetworking.assertPayloadType(PayloadTypeRegistryImpl.CONFIGURATION_C2S, type.id(), NetworkSide.SERVERBOUND, NetworkPhase.CONFIGURATION);
-        return NeoCommonNetworking.CONFIGURATION_REGISTRY.registerLocalReceiver(type, networkHandler, handler, ServerConfigNeoContextWrapper::new, ServerConfigurationNetworking.ConfigurationPacketHandler::receive);
+        NeoNetworkingImpl.assertPayloadType(PayloadTypeRegistryImpl.CONFIGURATION_C2S, type.id(), NetworkSide.SERVERBOUND, NetworkPhase.CONFIGURATION);
+        return NeoNetworkingImpl.CONFIGURATION_REGISTRY.registerLocalReceiver(type, networkHandler, handler, ServerConfigNeoContextWrapper::new, ServerConfigurationNetworking.ConfigurationPacketHandler::receive);
     }
 
     public static ServerConfigurationNetworking.ConfigurationPacketHandler<?> unregisterReceiver(ServerConfigurationNetworkHandler networkHandler, Identifier id) {
-        return NeoCommonNetworking.CONFIGURATION_REGISTRY.unregisterLocalReceiver(id, networkHandler);
+        return NeoNetworkingImpl.CONFIGURATION_REGISTRY.unregisterLocalReceiver(id, networkHandler);
     }
 
     public static Set<Identifier> getReceived(ServerConfigurationNetworkHandler handler) throws IllegalStateException {
-        return NeoCommonNetworking.CONFIGURATION_REGISTRY.getLocalReceivers(handler);
+        return NeoNetworkingImpl.CONFIGURATION_REGISTRY.getLocalReceivers(handler);
     }
 
     public static Set<Identifier> getSendable(ServerConfigurationNetworkHandler handler) throws IllegalStateException {
-        return NeoCommonNetworking.CONFIGURATION_REGISTRY.getLocalSendable(handler);
+        return NeoNetworkingImpl.CONFIGURATION_REGISTRY.getLocalSendable(handler);
     }
 
     public static boolean canSend(ServerConfigurationNetworkHandler handler, Identifier channelName) throws IllegalArgumentException {

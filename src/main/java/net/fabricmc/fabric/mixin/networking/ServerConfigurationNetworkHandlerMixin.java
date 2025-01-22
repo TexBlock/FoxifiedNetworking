@@ -21,7 +21,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerConfigurationConnectionEvents
 import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.server.network.ServerPlayerConfigurationTask;
 import net.neoforged.neoforge.common.extensions.IServerConfigurationPacketListenerExtension;
-import org.sinytra.fabric.networking_api.NeoListenableNetworkHandler;
+import net.fabricmc.fabric.impl.networking.neo.NeoNetworkHandlerExtensions;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -33,7 +33,7 @@ import java.util.Queue;
 
 // We want to apply a bit earlier than other mods which may not use us in order to prevent refCount issues
 @Mixin(value = ServerConfigurationNetworkHandler.class, priority = 900)
-public abstract class ServerConfigurationNetworkHandlerMixin implements FabricServerConfigurationNetworkHandler, NeoListenableNetworkHandler {
+public abstract class ServerConfigurationNetworkHandlerMixin implements FabricServerConfigurationNetworkHandler, NeoNetworkHandlerExtensions {
     @Shadow
     @Final
     private Queue<ServerPlayerConfigurationTask> tasks;

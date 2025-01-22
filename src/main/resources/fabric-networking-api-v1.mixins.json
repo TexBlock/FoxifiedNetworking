@@ -10,13 +10,23 @@
     "ServerConfigurationNetworkHandlerMixin",
     "ServerLoginNetworkHandlerMixin",
     "ServerPlayNetworkHandlerMixin",
-    "NetworkRegistryMixin",
+    "neo.NetworkRegistryMixin",
     "ServerCommonNetworkHandlerMixin",
     "accessor.EntityTrackerAccessor",
     "accessor.ServerCommonNetworkHandlerAccessor",
     "accessor.ServerLoginNetworkHandlerAccessor",
     "accessor.ServerChunkLoadingManagerAccessor",
     "accessor.NetworkRegistryAccessor"
+  ],
+  "client": [
+    "client.accessor.ClientLoginNetworkHandlerAccessor",
+    "client.accessor.ConnectScreenAccessor",
+    "client.accessor.MinecraftClientAccessor",
+    "client.ClientCommonNetworkHandlerMixin",
+    "client.ClientConfigurationNetworkHandlerMixin",
+    "client.ClientLoginNetworkHandlerMixin",
+    "client.ClientPlayNetworkHandlerMixin",
+    "client.neo.NetworkRegistryClientMixin"
   ],
   "injectors": {
     "defaultRequire": 1

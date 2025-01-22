@@ -29,6 +29,3 @@ side = "BOTH"
 
 [[mixins]]
 config = "fabric-networking-api-v1.mixins.json"
-
-[[mixins]]
-config = "fabric-networking-api-v1.client.mixins.json"
