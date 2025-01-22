@@ -1,5 +1,5 @@
 plugins {
-    id 'dev.architectury.loom' version '1.7-SNAPSHOT'
+    id 'dev.architectury.loom' version '1.9-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -8,8 +8,6 @@ version = "$project.mod_version+mc$project.minecraft_version"
 base.archivesName = project.archives_name
 
 loom {
-    silentMojangMappingsLicense()
-
     accessWidenerPath = file("src/main/resources/fabric-networking-api-v1.accesswidener")
 }
 
