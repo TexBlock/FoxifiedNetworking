@@ -83,15 +83,24 @@ public class NetworkRegistryMixin {
         return original.call(listener, location) || NeoNetworkRegistrar.hasCodecFor(listener.getPhase(), listener.getSide() == NetworkSide.SERVERBOUND ? NetworkSide.CLIENTBOUND : NetworkSide.SERVERBOUND, location);
     }
 
-    @ModifyVariable(method = "initializeNeoForgeConnection", at = @At(value = "INVOKE", target = "Lnet/neoforged/neoforge/network/registration/NetworkPayloadSetup;from(Ljava/util/Map;)Lnet/neoforged/neoforge/network/registration/NetworkPayloadSetup;"), ordinal = 1)
+    @ModifyVariable(method = "initializeNeoForgeConnection(Lnet/minecraft/network/listener/ServerConfigurationPacketListener;Ljava/util/Map;)V", at = @At(value = "INVOKE", target = "Lnet/neoforged/neoforge/network/registration/NetworkPayloadSetup;from(Ljava/util/Map;)Lnet/neoforged/neoforge/network/registration/NetworkPayloadSetup;"), ordinal = 1)
     private static Map<NetworkPhase, NegotiationResult> preserveSendableChannels(Map<NetworkPhase, NegotiationResult> results, ServerConfigurationPacketListener listener, Map<NetworkPhase, Set<ModdedNetworkQueryComponent>> clientChannels) {
-        Set<ModdedNetworkQueryComponent> channels = clientChannels.get(NetworkPhase.PLAY);
-        if (channels != null && !channels.isEmpty()) {
+        Set<ModdedNetworkQueryComponent> configChannels = clientChannels.get(NetworkPhase.CONFIGURATION);
+        if (configChannels != null && !configChannels.isEmpty()) {
+            NegotiationResult negotiation = results.get(NetworkPhase.CONFIGURATION);
+            List<NegotiatedNetworkComponent> components = new ArrayList<>(negotiation.components());
+            configChannels.stream()
+                    .filter(c -> components.stream().noneMatch(d -> c.id().equals(d.id())) && PayloadTypeRegistryImpl.CONFIGURATION_S2C.get(c.id()) != null)
+                    .forEach(c -> components.add(new NegotiatedNetworkComponent(c.id(), c.version())));
+            results.put(NetworkPhase.CONFIGURATION, new NegotiationResult(components, negotiation.success(), negotiation.failureReasons()));
+        }
+        Set<ModdedNetworkQueryComponent> playChannels = clientChannels.get(NetworkPhase.PLAY);
+        if (playChannels != null && !playChannels.isEmpty()) {
             NegotiationResult negotiation = results.get(NetworkPhase.PLAY);
             List<NegotiatedNetworkComponent> components = new ArrayList<>(negotiation.components());
-            channels.stream()
-                .filter(c -> components.stream().noneMatch(d -> c.id().equals(d.id())) && PayloadTypeRegistryImpl.PLAY_S2C.get(c.id()) != null)
-                .forEach(c -> components.add(new NegotiatedNetworkComponent(c.id(), c.version())));
+            playChannels.stream()
+                    .filter(c -> components.stream().noneMatch(d -> c.id().equals(d.id())) && PayloadTypeRegistryImpl.PLAY_S2C.get(c.id()) != null)
+                    .forEach(c -> components.add(new NegotiatedNetworkComponent(c.id(), c.version())));
             results.put(NetworkPhase.PLAY, new NegotiationResult(components, negotiation.success(), negotiation.failureReasons()));
         }
         return results;
