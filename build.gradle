@@ -74,5 +74,16 @@ publishing {
         // Notice: This block does NOT have the same function as the block in the top level.
         // The repositories here will be used for publishing your artifact, not for
         // retrieving dependencies.
+        maven {
+            name = "cloudsmith"
+            url = "https://maven.cloudsmith.io/thinkingstudio/foxifiednetworking/"
+            def releasesRepoUrl = "https://maven.cloudsmith.io/thinkingstudio/foxifiednetworking/"
+            def snapshotsRepoUrl = "https://maven.cloudsmith.io/thinkingstudio/foxifiednetworking/"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            credentials {
+                username = 'tex-true'
+                password = System.getenv("CLOUDSMITH_MAVEN_TOKEN")
+            }
+        }
     }
 }
