@@ -75,11 +75,14 @@ publishing {
         // The repositories here will be used for publishing your artifact, not for
         // retrieving dependencies.
         maven {
-            name = "GitHubPackages"
-            url = "https://maven.pkg.github.com/texblock/foxifiednetworking"
+            name = "cloudsmith"
+            url = "https://maven.cloudsmith.io/thinkingstudio/foxifiednetworking/"
+            def releasesRepoUrl = "https://maven.cloudsmith.io/thinkingstudio/foxifiednetworking/"
+            def snapshotsRepoUrl = "https://maven.cloudsmith.io/thinkingstudio/foxifiednetworking/"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
             credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
+                username = 'tex-true'
+                password = System.getenv("CLOUDSMITH_MAVEN_TOKEN")
             }
         }
     }

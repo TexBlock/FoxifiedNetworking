@@ -1,4 +1,4 @@
-name: Publish package to GitHub Packages
+name: Publish package to CloudSmith Maven
 on:
   workflow_dispatch:
   release:
@@ -23,4 +23,4 @@ jobs:
           chmod +x gradlew
           ./gradlew publish
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CLOUDSMITH_MAVEN_TOKEN: ${{ secrets.CLOUDSMITH_MAVEN_TOKEN }}
