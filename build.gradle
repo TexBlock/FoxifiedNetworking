@@ -30,7 +30,7 @@ dependencies {
     neoForge "net.neoforged:neoforge:$project.neoforge_version"
     for (String module in ffapi_modules.split(",")) {
         if (module == "fabric-api-base") {
-            modCompileOnly("org.sinytra.forgified-fabric-api:$module:0.4.42+d1308ded19")
+            modApi(include("org.sinytra.forgified-fabric-api:$module:0.4.42+d1308ded19"))
         }
     }
 }
